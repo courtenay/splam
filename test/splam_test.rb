@@ -9,6 +9,7 @@ require 'splam/rules'
 
 class Foo
   include ::Splam
+  splammable :body
   attr_accessor :body
   def body
     @body || "This is body\320\224 \320\199"
@@ -20,7 +21,8 @@ class SplamTest < Test::Unit::TestCase
   
   def test_runs_plugins
     f = Foo.new
-    assert_equal 6, f.splammable(:body)
+    assert ! f.spam?
+    assert_equal 16, f.splam_score
   end
 
   def test_scores_spam_really_high
@@ -28,14 +30,18 @@ class SplamTest < Test::Unit::TestCase
     Dir.glob(File.join(File.dirname(__FILE__), "fixtures", "comment", "spam", "*.txt")).each do |f|
       spam = File.open(f).read
       comment.body = spam
-      score = comment.splammable(:body)
-      $stderr.puts "#{f} score: #{score}"
+      # some spam have a lower threshold denoted by their filename
+      # trickier to detect
       if f =~ /\/(\d+)_\w+\.txt/
-        $stderr.puts $1.to_i
-        assert (score >= $1.to_i)
+        Foo.splam[:threshold] = $1.to_i
       else
-        assert (score >= 100)
+        Foo.splam[:threshold] = 99
       end
+      comment.spam? # todo: assert
+      score = comment.splam_score
+      # $stderr.puts "#{f} score: #{score}"
+      # $stderr.puts "====================="
+      assert comment.spam?, "Comment #{f} was not spam, score was #{score} but threshold was #{Foo.splam[:threshold]}"
     end
   end
   
@@ -44,14 +50,12 @@ class SplamTest < Test::Unit::TestCase
     Dir.glob(File.join(File.dirname(__FILE__), "fixtures", "comment", "ham", "*.txt")).each do |f|
       spam = File.open(f).read
       comment.body = spam
-      score = comment.splammable(:body)
-      $stderr.puts "#{f} score: #{score}"
-      if f =~ /\/(\d+)_\w+\.txt/
-        $stderr.puts $1.to_i
-        assert (score >= $1.to_i)
-      else
-        assert (score < 50)
-      end
+      comment.spam?
+      score = comment.splam_score
+      # $stderr.puts "#{f} score: #{score}"
+      # $stderr.puts "====================="
+      
+      assert ! comment.spam?
     end
   end
   

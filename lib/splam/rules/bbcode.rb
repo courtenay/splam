@@ -1,10 +1,10 @@
 class Splam::Rules::Bbcode < Splam::Rule
   
   def run
-    score = 40 * @body.scan("[url=").size # no URLS for you!!
-    score = 40 * @body.scan("[URL=").size # no URLS for you!!
-    score += 40 * @body.scan("[url=http").size # another 10 points for shitty bbcode html
-    score += 40 * @body.scan("[URL=").size # another 10 points for shitty bbcode html
-    score += 10 * @body.scan(/\[[bai]/).size
+    add_score 40 * @body.scan("[url=").size, "URL" # no URLS for you!!
+    add_score 40 * @body.scan("[URL=").size, "URL" # no URLS for you!!
+    add_score 40 * @body.scan("[url=http").size, "Shitty URL/html" # another 10 points for shitty bbcode html
+    add_score 40 * @body.scan("[URL=http").size, "Shitty URL/html" # another 10 points for shitty bbcode html
+    add_score 10 * @body.scan(/\[[bai]/).size, "b/a/i tag"
   end
 end

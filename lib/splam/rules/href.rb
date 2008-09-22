@@ -3,34 +3,48 @@
 class Splam::Rules::Href < Splam::Rule
   
   def run
-    score = 3 * @body.scan("href=http").size # 3 points for shitty html
+    add_score 3 * @body.scan("href=http").size, "Shitty html 'href=http'" # 3 points for shitty html
+
     link_count = @body.scan("http://").size
-    score += 1 * link_count # 1 point per link
-    score += 50 if link_count > 10  # more than 10 links? spam.
-    score += 100 if link_count > 20 # more than 20 links? definitely spam.
+    add_score 1 * link_count, "Matched 'http://'" # 1 point per link
+    add_score 50, "More than 10 links" if link_count > 10  # more than 10 links? spam.
+    add_score 100, "More than 20 links" if link_count > 20 # more than 20 links? definitely spam.
+    add_score 1000, "More than 50 links" if link_count > 50 # more than 20 links? definitely spam.
     
     # Modify these scores to weight certain problematic domains.
     # You may need to modify these for your application
-    suspicious_domains = {
+    suspicious_top_level_domains = {
       'ru' => 20,  # Russian? spammer.
       'cn' => 20,  # Chinese? spammer.
       'us' => 8,   # .us ? possibly spam
       'it' => 5,
       'pl' => 8,
       'info' => 20, 
-      'biz' => 20
+      'biz'  => 20
     }
-
+    suspicious_sites = {
+      'cnn' => 10 # Honestly, who links to CNN?
+    }
+    
+    tokens = @body.split(" ")
+    if tokens[-1] =~ /^http:\/\//
+      add_score 50, "Text ends in a link"
+      add_score 10, "Text ends in a link and only has one link" if link_count == 1
+    end
+    
     @body.scan(/http:\/\/(.*?)[\/\]\s]/) do |match|
       # $stderr.puts "checking #{match}"
-      if domain = match.to_s.split(".")[-1]
-        # $stderr.puts "Found domain '#{domain}'"
-        if found = suspicious_domains[domain]
-          # $stderr.puts "Found match for bad domain: #{match} "
-          score += found
+      if domain = match.to_s.split(".")
+        tld = domain[-1]
+
+        if found = suspicious_top_level_domains[tld]
+          add_score found, "Suspicious top-level domain: '#{tld}'"
+        end
+        
+        if found = suspicious_sites[domain[-2]]
+          add_score found, "Suspicious hostname: '#{domain[-2]}'"
         end
       end
     end
-    score
   end
 end

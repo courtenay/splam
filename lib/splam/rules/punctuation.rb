@@ -1,16 +1,14 @@
 class Splam::Rules::Punctuation < Splam::Rule
   
   def run
-    score = 0
-    
+    punctuation = @body.scan(/[.,] /)
+    add_score 10, "Text has no punctuation" if punctuation.size == 0
+
     @body.split(".").each do |sentence|
       words = sentence.split(" ")
       # long sentence, add a point.
-      score += 1 if words.size > 10
-      
-      # 30 words in a sentence? spam
-      score += 10 if words.size > 30
+      add_score 1, "Sentence has more than 10 words" if words.size > 10
+      add_score 10, "Sentence has more than 30 words" if words.size > 30
     end
-    score
   end
 end
