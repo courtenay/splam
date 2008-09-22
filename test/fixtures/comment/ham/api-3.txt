@@ -1,0 +1,3 @@
+Rick, is there a way to get all data without making requests page-by-page.  If not, is there a way to get the total number of items?
+
+Thanks.

@@ -1,0 +1,2 @@
+module Splam::Rules
+end

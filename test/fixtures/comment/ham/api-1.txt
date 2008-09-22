@@ -1,0 +1,1 @@
+"This":http://activereload.lighthouseapp.com/projects/44-lighthouse-users/tickets.xml?q=state%3Aopen&page=2 doesn't work for you?  Sending ?page=2 should work fine. It's basically an XML version of the html page.  Try it without the .xml extension, and it should match the xml feed.

@@ -1,0 +1,11 @@
+I came across a post on searching on multiple tags (http://forum.activereload.net/forums/4/topics/534), but I have a somewhat different problem.  Apologies if this has been covered before.
+
+I'm searching for open tickets without patches in Rails.  If I search for this (copied directly from the search box): 
+
+    state:open not-tagged:patch tagged:activerecord
+
+then I get 64 results.  However, if I search for this:
+
+    state:open not-tagged:patch
+
+then I get zero results.  I've found no way to create a search that returns what strikes me as a potentially popular query.  I'd appreciate any direction.

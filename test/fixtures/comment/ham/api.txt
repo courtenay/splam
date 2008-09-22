@@ -1,0 +1,5 @@
+Hey guys.  So after a long night, I could finally get the API to do what I need to.  But I can't seem to access anything past the first 30 tickets.  
+
+http://xxx.lighthouseapp.com/projects/xxx/tickets.xml?q=state:open
+
+I've tried adding ?page=1 then 2 then 3, but I can't seem to get anything but the first original 30 tickets.  I know there are 65 tickets that match that request.  Any suggestions?

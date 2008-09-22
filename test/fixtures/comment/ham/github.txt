@@ -1,0 +1,5 @@
+Syncing changeset notifications and/or ticket status changes from GitHub have been getting slower and slower lately until today... when they just stopped working at all.
+
+Is this a known issue?  Is this part of the job queue issues you referred to here in "this post":http://lhstatus.com/post/50280759 ?
+
+LH's usefulness severely declines for me when I can't make updates via commit messages.  What's going on?

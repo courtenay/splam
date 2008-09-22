@@ -1,0 +1,7 @@
+Rick -
+
+Thanks again.  I, after wrestling with a case of dyslexia, got it to work with you suggestion. I wasn't encoding the colon for some reason.  Idiot me.
+
+I'm probably going to put together a little 'dummies guide' for the API once I get done with this projects, because I think it would help others who might have had some similar initial glitches.
+
+THANKS for a great product!

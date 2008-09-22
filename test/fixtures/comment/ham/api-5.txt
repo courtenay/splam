@@ -1,0 +1,7 @@
+While no-pagination would be nice I can understand why it exists. If you have 100s of tickets then you're going to have an absolutely huge XML file to generate and load. The easy way to work through is:
+
+if (number of tickets on page == 30) {
+     get next page
+} else {
+     got all tickets
+}
