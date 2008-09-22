@@ -1,13 +1,37 @@
 Splam
 =====
 
-Introduction goes here.
+Splam is a simple spam scoring plugin.  It contains a set of rules that are run on a field
+to determine the likelihood of that field being spam.
+
+Check out the tests for instructions on how to use: you'll want to integrate this into
+your application's workflow.
+
+It's heavily biased towards the spam I've been seeing in the past two or three hours.
+This includes lots of crap with
+- bbcode [url=
+- lots of links (http://)
+- russian text
+- links to russian or chinese websites
+
+You can write your own plugins to Splam: simply subclass Splam::Rule. Splam is clever enough
+to iterate over all Rule's subclasses and run the 'run' method on the field to be checked.
+It aggregates all the scores.  From the brief testing I've done, anything over about 40 is
+likely to be spam.  Real spam will blow out of the scoring stratosphere with over 1,000.
+
+Recommended serving directions:
+
+Add this to a model, check the score, and determine (based on other factors such as logged-in
+user, time spent on the page, validity of request headers, length of user's membership on the 
+site) whether to ban the post or not. 
+
+We recommend showing the post to the user (sandbox them in) but hide it from everyone else.
+
+Plans for the future:
+
+1. Integrate bayesian or other clever checking, so that scores aren't hardcoded.
+2. Write more plugins!
+3. Test against a larger Ham corpus
 
 
-Example
-=======
-
-Example goes here.
-
-
-Copyright (c) 2008 [name of plugin creator], released under the MIT license
+Copyright (c) 2008 ENTP, released under the MIT license
