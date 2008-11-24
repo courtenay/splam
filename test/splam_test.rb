@@ -39,23 +39,22 @@ class SplamTest < Test::Unit::TestCase
       end
       comment.spam? # todo: assert
       score = comment.splam_score
-      # $stderr.puts "#{f} score: #{score}"
-      # $stderr.puts "====================="
-      assert comment.spam?, "Comment #{f} was not spam, score was #{score} but threshold was #{Foo.splam[:threshold]}"
+      #$stderr.puts "#{f} score: #{score}"
+      #$stderr.puts "====================="
+      assert comment.spam?, "Comment #{f} was not spam, score was #{score} but threshold was #{Foo.splam[:threshold]}\nReasons were #{comment.splam_reasons.inspect}"
     end
   end
   
   def test_scores_ham_low
     comment = Foo.new
     Dir.glob(File.join(File.dirname(__FILE__), "fixtures", "comment", "ham", "*.txt")).each do |f|
-      spam = File.open(f).read
-      comment.body = spam
+      comment.body = File.open(f).read
       comment.spam?
       score = comment.splam_score
-      # $stderr.puts "#{f} score: #{score}"
-      # $stderr.puts "====================="
+      #$stderr.puts "#{f} score: #{score}"
+      #$stderr.puts "====================="
       
-      assert ! comment.spam?
+      assert !comment.spam?, "File #{f} should be marked ham, but was marked with score #{score}\nReasons were #{comment.splam_reasons}\n\n#{comment.body}"
     end
   end
   

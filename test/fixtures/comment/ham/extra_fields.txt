@@ -1,0 +1,25 @@
+I know this has been requested by others in the past with no fruition, but I find myself needing to ask for it now.  One of the things I like about Lighthouse over the very complicated and expensive other bug tracking systems I've used and evaluated is that it achieves so much of what I need with so little and stays simple -- so I resisted making this request until I needed it enough that I'd likely have to switch to another solution, which is the point I'm at now.
+
+Tags can be used (to varying degrees of success) where custom fields would be used in other issue tracking systems, and we have done so.  However, there is a class of information that can't be adequately represented this way.  For example, we track our time for billing purposes in another system, and so we need a way to know which billing project a given Lighthouse ticket should be associated with.  If we could create a custom field (say, "billingProject") then we could do the following:
+
+* have this information in a uniform place in each ticket
+* search for tickets which do or do not have a billing project associated with it (so that one can be assigned, or perhaps to consider those which do not have one to be lower priority)
+* use the API to automatically populate that field or pull from that field
+
+
+I don't think this can be adequately solved using existing Lighthouse functionality.  The options I can see are:
+
+1.  Use tags
+Problems:
+  * Our billing system is dumb, and generates long and crazy project IDs
+  * There are lots of billing projects, so there would be hundreds of these tags to wade through
+
+2.  Just put it free-form in the description or a comment
+Problems:
+  * Unless we force a rigid notation convention (like "Billing Project:  <asdfdsfasdf-8484>" on a line by itself or something), we can't search for the presence of one, nor pull them easily with the API.
+
+
+
+Or am I missing a solution?
+
+Thanks.

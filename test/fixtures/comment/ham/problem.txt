@@ -1,0 +1,7 @@
+I am trying to add them to my account. 
+
+I think what happened was, in the past, they signed up for an account never ended up using the app. Because their account exists "somewhere" they can't register anew because the e-mail account exists in the system and they can't sign in using that account because they don't know the password. The 'retrieve password' option does not work because they have not accepted their invitation to my account. 
+
+This is a bit of a circular problem (chicken vs egg). Can you either a) delete the e-mail joe@fakesite.com from your records so he can register from scratch or b) supply the password for that account so he can log in and work on this project. 
+
+Cheers

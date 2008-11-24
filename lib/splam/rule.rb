@@ -30,10 +30,10 @@ class Splam::Rule
   
   def add_score(points, reason)
     @score ||= 0
-    if points > 0
+    if points != 0
       @reasons << "#{name}: [#{points}] #{reason}"
       @score += points
     end
   end
-
+  
 end

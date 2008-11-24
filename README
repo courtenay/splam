@@ -34,13 +34,13 @@ Recommended serving directions:
     comment = Comment.new :body => "This is spam!!!1"
     comment.spam? # => false
     comment.splam_score # => 2
+    comment.splam_reasons # => []
 
 Add this to a model, check the score, and determine (based on other factors such as logged-in
 user, time spent on the page, validity of request headers, length of user's membership on the 
 site) whether to ban the post or not. 
 
 We recommend showing the post to the user (spambox them in) but hide it from everyone else.
-
 
 TODO
 

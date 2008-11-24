@@ -22,7 +22,7 @@ class Splam::Rules::Href < Splam::Rule
       'it' => 5,
       'pl' => 8,
       'info' => 20, 
-      'biz'  => 20
+      'biz'  => 40 # no-one uses these for reals
     }
     suspicious_sites = {
       'cnn' => 10 # Honestly, who links to CNN?
@@ -34,7 +34,7 @@ class Splam::Rules::Href < Splam::Rule
       add_score 10, "Text ends in a link and only has one link" if link_count == 1
     end
     
-    @body.scan(/http:\/\/(.*?)[\/\]\s]/) do |match|
+    @body.scan(/http:\/\/(.*?)[\/\]?]/) do |match|
       # $stderr.puts "checking #{match}"
       if domain = match.to_s.split(".")
         tld = domain[-1]

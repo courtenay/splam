@@ -1,0 +1,10 @@
+1. In Eclipse install the "Mylyn Connector: Web Templates" form the Mylyn incubation update site ( http://download.eclipse.org/tools/mylyn/update/incubator )
+
+2. Add a new Task Repository using the following settings:
+
+<a href="http://img266.imageshack.us/my.php?image=mylynlighthousekg2.png" target="_blank"><img src="http://img266.imageshack.us/img266/5634/mylynlighthousekg2.th.png" border="0" alt="Free Image Hosting at Image Shack" /></a>
+
+Task URL: ${serverUrl}/tickets/ 
+New Task URL: ${serverUrl}/tickets/new
+Query Request URL: ${serverUrl}/tickets.xml?q=${query}
+Query Pattern (one line!): <ticket>.*?<assigned-user-id type="integer">({Owner}.+?)</assigned-user-id>.*?<number type="integer">({Id}.+?)</number>.*?<state>({Status}.+?)</state>.*?<title>({Description}.+?)</title>
