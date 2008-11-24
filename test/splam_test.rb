@@ -22,7 +22,7 @@ class SplamTest < Test::Unit::TestCase
   def test_runs_plugins
     f = Foo.new
     assert ! f.spam?
-    assert_equal 16, f.splam_score
+    assert_equal 10, f.splam_score
   end
 
   def test_scores_spam_really_high

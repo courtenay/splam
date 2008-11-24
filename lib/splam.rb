@@ -5,9 +5,10 @@
 
 module Splam
   def self.included(base)
+    $stderr.puts "included"
     # Autoload all files in rules
     # This is bad, mkay
-    Dir["lib/splam/rules/*.rb"].each do |f|
+    Dir["#{File.dirname(__FILE__)}/splam/rules/*.rb"].each do |f|
       require f
     end
     base.send :extend, ClassMethods
