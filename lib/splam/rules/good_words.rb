@@ -3,8 +3,8 @@ class Splam::Rules::GoodWords < Splam::Rule
   def run
     good_words = [ /I\'having a problem/, ]
     good_words |= %w( lighthouse install eclipse settings assigned user ticket tickets token api number query request)
-    good_words |= %w( project billing tags description comment milestone saving happening)
-    good_words |= %w( rss notification subscribe )
+    good_words |= %w( project billing tags description comment milestone saving happening feature mac implement report)
+    good_words |= %w( rss notification subscribe calendar chart note task gantt search service ownership application communicate )
     good_words << "project management"
     good_words << "/usr/local/lib" << "gems"
 

@@ -1,0 +1,10 @@
+Currently I'm working on a project with one other person and we are using this application as our central hub to communicate with each other and monitor 'trackers' that we have setup for our development.
+
+The only problem we have with the service right now is the fact that when one of sets the responsibility ownership to one-another we would like to receive email notifications stating that "Posted Item to Work On" now belongs to you, or something along those lines.
+
+If this is built it, did we do something wrong which is preventing this from happening? Also I'm not sure if this was posted already or not, and I did search for it.
+
+Best regards,
+Joe McFake
+CEO, Blah
+http://www.blah.com/
