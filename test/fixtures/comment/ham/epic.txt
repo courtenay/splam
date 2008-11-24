@@ -1,0 +1,35 @@
+Well, you asked for it... and it is long. :)  (Short version... stick with Lighthouse...)
+
+First, don't get me wrong, I love 37Signals' products.  I have (had) a paid account for every one of their subscription apps.  Currently, Backpack is my absolute favorite.  Since they opened it up to be multi-user, it is the perfect Intranet for a company.  However, I have always found Basecamp to be a little lacking for software projects.  The ToDo list feature isn't great for tracking that kind of work.  I am used to Issue Tracking systems like FogBugz, TestTrack Pro, JIRA, etc.  I like to record everything I can regarding each ticket (bug, feature, whatever it is).  Lighthouse has all the features you need for tracking a software development project, in a much more affordable package (compared to JIRA, Testrack Pro and FogBugz).  I like FogBugz a lot, but it can get expensive if you are developing on a team.  Lighthouse is just right... affordable, feature rich, nice to look at and easy to use.
+
+Compared to Basecamp, they both have a Dashboard, Overview pages for each project, Messages, Attachments and Milestones.  Obviously, the point at which they really diverge is task management.
+
+Tickets vs. Todos
+-----------------
+Lighthouse is Ticket-centric as you know.  You can track comments (history) with each ticket.  Tickets also track any state changes (like adding new tags, changing the ticket status, etc).  Basecamp's focus is equally distributed between all their objects.  Team collaboration is the main (published) focus behind Basecamp.  Basecamp's Todos are just 'one-liner' tasks that you can re-order and drag between lists.  There are no unique IDs (ticket #18), comments, notes or history.
+
+Pages vs. Writeboards
+---------------------
+Basecamp has Writeboards, however, they aren't tightly integrated since it redirects you out of the application to use them (but having the links is better than nothing).  Lighthouse has Pages, which are nice because they are right there in the project (no redirection).  Both Writeboards and Pages are like the Wikis of other systems (FogBugz)... a great place to write documentation.  I think Lighthouse does a little better job here, from the software development perspective.  The thing that bothers me about the redirection of Basecamp's Writeboards is the loss of the navigation.  You have to click 'Back to Project' then you can continue navigating.  It just seems unnecessary to me (but I understand why).  Both Pages and Writeboards are Textile-based but Writeboards do track your versions as you make edits to the documents.  Lighthouse doesn't, but I know it could since Rick literally wrote the "plugin":http://github.com/technoweenie/acts_as_versioned/tree/master. ;)  I wouldn't mind seeing Pages get their own sub-nav button beside Milestones (Overview >> Tickets >> Messages >> Milestones >> Pages).
+
+File Management/Attachments
+---------------------------
+I think Basecamp gets the file management part right.  You can attach files to Messages or upload them directly to the Files page and you can search and browse them.  They have a way to browse the image previews, etc.  Lighthouse can attach to messages, tickets and comments, but the images aren't displayed inline which I think would be a nice feature.  I sometimes don't realize the attachments are there because they get lost in the sidebar.  In Lighthouse, when you do click an image, it links directly to it.  I think it would be nice to have two links.  One to view it within the context of the page (using something like FancyZoom) and the other could continue to take you to a direct link to the image.  Or maybe you just hover over the link for a semi-large preview and clicking it remains the same.  But, once you get used to the existing setup, it works fine.
+
+RSS vs. Notifications
+---------------------
+The thing I need to remember about Lighthouse is that it is more RSS-focused.  Instead of notifications for things you create, they give you the RSS feeds.  Since I jumped into RSS later than most, that doesn't always occur to me right away.  But, now that I have subscribed to the feed, I can see what is going on just fine.  With Apple Mail, you can subscribe to an RSS feed and have it show up in your Inbox with your email (and Outlook 2007 too, I think).  So, it is essentially the same feature as direct notifications (just not targeted to specific users).
+
+Chat
+-----------
+Basecamp has Chat integration, but it is really just a link to a particular Campfire room in the previously setup Campfire account.  So, it isn't necessarily a 'feature'.  See below under "Lighthouse Enhancements" for more on this.
+
+Something cool I have setup is a 'webclip' of the Project list (from the Dashboard) and the History (also from the Dashboard).  (I also did this for my GitHub repository list.)  So, I can just press F12 on my Mac and see what is new on the site OR click a link right to a project or item.  It works great.  (But I got that idea from a blog post about doing the same thing with the Backpack Journal.) :)
+
+Lastly, I have always been into UI.  Justin has done a fantastic job with v2 of Lighthouse.  I love the fonts, the colors, the arrangement of positive/negative space...  I think it is absolutely fantastic on a Mac in Safari (or any combo, but that is my favorite).  Plus, when you couple Engine Yard hosting with Safari rendering speed, font smoothing on a Mac, and Justin's artistic ability, it is just a great user experience.  I find it to be an excellent, well-designed tool.  (The design of Basecamp is very nice too, clean and easy to use, but I like Lighthouse v2 better.)
+
+If I was you, I would stick with Lighthouse as your project management tool.  Basecamp is great for project management, but it is better for generic projects.
+
+Lighthouse Enhancements
+-----------------------
+Some feature requests for Lighthouse that would really tighten it up as a Software Development Project Management tool would be EITHER Message Notifications OR better explanation of the use of RSS to accomplish the same result.  I don't think it is readily apparent.  To most it would seem that Messages in Lighthouse just aren't as mature as Messages in Basecamp.  Second, it would be nice to have customizable 'Quick Links' in the sidebar or somewhere.  This would simply be a label field and a URL field (Target a new window, though).  That way, you could add links to other commonly used tools like Github, Campfire, Backpack, etc.  You could define them globally or on a per-project basis.  They would all show up in the Project sidebar, but the global links would appear in every project.  Finally, inline display of image attachments.  Little previews right beside the comments would be very nice.  I can recommend a great plugin called "attachment_fu":http://github.com/technoweenie/attachment_fu/tree/master for just such a job (ha!).

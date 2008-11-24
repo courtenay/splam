@@ -1,0 +1,16 @@
+I get this error message when changing the milestone on a ticket and then saving it:
+
+    ActiveResource::ServerError (Failed with 500 Internal Server Error):
+    /usr/local/lib/ruby/gems/1.8/gems/activeresource-2.1.0/lib/active_resource/connection.rb:173:in `handle_response'
+    /usr/local/lib/ruby/gems/1.8/gems/activeresource-2.1.0/lib/active_resource/connection.rb:144:in `request'
+    /usr/local/lib/ruby/gems/1.8/gems/activeresource-2.1.0/lib/active_resource/connection.rb:121:in `put'
+    /usr/local/lib/ruby/gems/1.8/gems/activeresource-2.1.0/lib/active_resource/base.rb:929:in `update'
+    /usr/local/lib/ruby/gems/1.8/gems/activeresource-2.1.0/lib/active_resource/base.rb:779:in `save_without_validation'
+    /usr/local/lib/ruby/gems/1.8/gems/activeresource-2.1.0/lib/active_resource/validations.rb:262:in `save_without_tags'
+    /lib/lighthouse.rb:181:in `save'
+
+A few days ago this wasn't happening - and now it happens even through ./script/console
+
+Any thoughts or ideas?
+
+Thanks
