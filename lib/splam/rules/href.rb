@@ -25,7 +25,8 @@ class Splam::Rules::Href < Splam::Rule
       'biz'  => 40 # no-one uses these for reals
     }
     suspicious_sites = {
-      'cnn' => 10 # Honestly, who links to CNN?
+      'cnn' => 10, # Honestly, who links to CNN?
+      'bbc' => 10
     }
     
     tokens = @body.split(" ")

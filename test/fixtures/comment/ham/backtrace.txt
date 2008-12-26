@@ -1,0 +1,79 @@
+Hey guys,
+
+Installed 1.1.1 and upon clicking the "Hooks" button, I get the following error:
+
+[code]Processing HooksController#index (for 192.168.1.85 at 2007-10-15 11:08:32) [GET]
+  Session ID: BAh7BiIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNo%0ASGFzaHsABjoKQHVzZWR7AA%3D%3D--fbec10b5ed11e70564577d7f46ee0f5f6a40f597
+  Parameters: {"action"=>"index", "controller"=>"hooks"}
+Rendering template within layouts/application
+Rendering hooks/index
+
+[code]ActionView::TemplateError (undefined method `repo' for nil:NilClass) on line #2 of app/views/hooks/_hook.html.erb:
+1: <li id="hook-<%= hook.plugin_name %>" class="listitem">
+2:   <% remote_sheet_form_for :hook, hook.properties, :url => hooks_path(:name => hook.plugin_name), 
+3:          :trigger => "hooknew-#{hook.plugin_name}", :html => {:id => "hooksheet-#{hook.plugin_name}", :style => 'display:none'} do |s| %>
+4:     <h2>Add <%= hook.title %> Instance</h2>
+5:     <%= s.text_field "Label:", :label %>
+
+    lib/warehouse/hooks/base.rb:12:in `initialize'
+    lib/warehouse/hooks/base.rb:17:in `new'
+    lib/warehouse/hooks/base.rb:17:in `properties'
+    app/views/hooks/_hook.html.erb:2:in `_run_erb_47app47views47hooks47_hook46html46erb'
+    vendor/rails/actionpack/lib/action_view/base.rb:377:in `send'
+    vendor/rails/actionpack/lib/action_view/base.rb:377:in `compile_and_render_template'
+    vendor/rails/actionpack/lib/action_view/base.rb:353:in `render_template'
+    vendor/rails/actionpack/lib/action_view/base.rb:303:in `render_file'
+    vendor/rails/actionpack/lib/action_view/base.rb:318:in `render'
+    vendor/rails/actionpack/lib/action_view/partials.rb:117:in `render_partial'
+    vendor/rails/actionpack/lib/action_controller/benchmarking.rb:30:in `benchmark'
+    vendor/rails/actionpack/lib/action_view/partials.rb:116:in `render_partial'
+    vendor/rails/actionpack/lib/action_view/partials.rb:143:in `render_partial_collection'
+    vendor/plugins/expiring_attr_reader/lib/expiring_attr_reader.rb:32:in `each_with_index'
+    vendor/rails/actionpack/lib/action_view/partials.rb:141:in `each'
+    vendor/rails/actionpack/lib/action_view/partials.rb:141:in `each_with_index'
+    vendor/rails/actionpack/lib/action_view/partials.rb:141:in `render_partial_collection'
+    vendor/rails/actionpack/lib/action_view/base.rb:337:in `render'
+    app/views/hooks/index.html.erb:4:in `_run_erb_47app47views47hooks47index46html46erb'
+    vendor/rails/actionpack/lib/action_view/base.rb:377:in `send'
+    vendor/rails/actionpack/lib/action_view/base.rb:377:in `compile_and_render_template'
+    vendor/rails/actionpack/lib/action_view/base.rb:353:in `render_template'
+    vendor/rails/actionpack/lib/action_view/base.rb:303:in `render_file'
+    vendor/rails/actionpack/lib/action_controller/base.rb:1070:in `render_for_file'
+    vendor/rails/actionpack/lib/action_controller/base.rb:797:in `render_with_no_layout'
+    vendor/rails/actionpack/lib/action_controller/layout.rb:261:in `render_without_benchmark'
+    vendor/rails/actionpack/lib/action_controller/benchmarking.rb:51:in `render'
+    /usr/local/lib/ruby/1.8/benchmark.rb:293:in `measure'
+    vendor/rails/actionpack/lib/action_controller/benchmarking.rb:51:in `render'
+    vendor/rails/actionpack/lib/action_controller/base.rb:1125:in `perform_action_without_filters'
+    vendor/rails/actionpack/lib/action_controller/filters.rb:697:in `call_filters'
+    vendor/rails/actionpack/lib/action_controller/filters.rb:723:in `run_before_filters'
+    app/controllers/application.rb:174:in `set_context'
+    vendor/plugins/active_record_context/lib/technoweenie/active_record_context.rb:40:in `with_context'
+    app/controllers/application.rb:173:in `set_context'
+    vendor/rails/actionpack/lib/action_controller/filters.rb:471:in `send!'
+    vendor/rails/actionpack/lib/action_controller/filters.rb:471:in `call'
+    vendor/rails/actionpack/lib/action_controller/filters.rb:720:in `run_before_filters'
+    vendor/rails/actionpack/lib/action_controller/filters.rb:695:in `call_filters'
+    vendor/rails/actionpack/lib/action_controller/filters.rb:689:in `perform_action_without_benchmark'
+    vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_without_rescue'
+    /usr/local/lib/ruby/1.8/benchmark.rb:293:in `measure'
+    vendor/rails/actionpack/lib/action_controller/benchmarking.rb:68:in `perform_action_without_rescue'
+    vendor/rails/actionpack/lib/action_controller/rescue.rb:175:in `perform_action_without_caching'
+    vendor/rails/actionpack/lib/action_controller/caching.rb:670:in `perform_action'
+    vendor/rails/activerecord/lib/active_record/connection_adapters/abstract/query_cache.rb:33:in `cache'
+    vendor/rails/activerecord/lib/active_record/query_cache.rb:8:in `cache'
+    vendor/rails/actionpack/lib/action_controller/caching.rb:669:in `perform_action'
+    vendor/rails/actionpack/lib/action_controller/base.rb:517:in `send'
+    vendor/rails/actionpack/lib/action_controller/base.rb:517:in `process_without_filters'
+    vendor/rails/actionpack/lib/action_controller/filters.rb:685:in `process_without_session_management_support'
+    vendor/rails/actionpack/lib/action_controller/session_management.rb:123:in `process'
+    vendor/rails/actionpack/lib/action_controller/base.rb:377:in `process'
+    vendor/rails/actionpack/lib/action_controller/dispatcher.rb:170:in `handle_request'
+    vendor/rails/actionpack/lib/action_controller/dispatcher.rb:114:in `dispatch'
+    vendor/rails/actionpack/lib/action_controller/dispatcher.rb:125:in `dispatch_cgi'
+    vendor/rails/actionpack/lib/action_controller/dispatcher.rb:9:in `dispatch'
+    /opt/lsws/fcgi-bin/RailsRunner.rb:24
+
+[code]Rendering /applied/warehouse/public/500.html (500 Internal Server Error)
+
+Any ideas?

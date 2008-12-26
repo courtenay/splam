@@ -1,0 +1,17 @@
+The challenging part about writing those install docs are that each host is different.
+
+1) Yes, upload the contents of the tarball.  Careful though, I've seen instances where Terminal (ftp client for the mac) adds the file permissions to the end of some of the files for some reason (resulting in files like foo.rb006644).  Worse is that the error isn't apparent right away, but some mysterious things in Rails 'break' for no seemingly logical reason.  Boy, that was fun tracking that down :)  You also don't want to have the rails app in the public directory.  Warehouse has its own /public directory for this, where the javascript/css/image assets live, along with the fcgi script.
+
+2)  .htaccess is only needed for apache.  Though, you may be editing the actual httpd.conf file on VPS hosts (where you're managing your own Apache, and not on a shared host like Dreamhost).  The database.yml file is indeed updated by the bootstrap task, I guess I should update the install docs for that.  Also, I'm not sure why they have you editing dispatch.rb.  I'd just remove it altogether, I think it's only used by mod_ruby, and 99% of rails apps are typically using mongrel or FastCGI.
+
+3) That just means your database is setup and all that.  There's really no way for Warehouse to know if your web server is setup correctly.  Rails just waits for requests, it's really up to your web server to route them correctly.  That's what the various Apache rewrite rules are doing, routing everything to dispatch.fcgi.
+
+4) Just out of curiosity, what was the error you received?  It could've been a misconfiguration with your web server that you apparently fixed with Laran's help.  At that point you'd have to check the logs at log/production.log to see the full error if you're sure Apache is setup correctly.
+
+Regarding post commit hooks, it depends on how you set them up in Dreamhost.  A post commit hook is simply a script that subversion calls after a commit.  According to "the dreamhost wiki":http://wiki.dreamhost.com/Subversion#Setting_up_post_commit_emails, you'll want to rename your svn/(repository name)/hooks/post-commit.tmpl script to just svn/(repository name)/hooks/post-commit, and ensure it has world-executable permissions (run `chmod 755 vn/(repository name)/hooks/post-commit`).  It's contents should resemble something like this:
+
+<pre>#!/bin/sh
+cd /path/to/warehouse
+rake warehouse:post_commit RAILS_ENV=production REPO_PATH=$1 REVISION=$2</pre>
+
+Now, if your repository name matches your subdomain, you're all set.  You should be able to copy that to other subversion repositories in your dreamhost account and use them all with your single copy of Warehouse.

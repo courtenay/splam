@@ -7,6 +7,8 @@ class Splam::Rules::LineLength < Splam::Rule
   # Penalize long line lengths.
   def run
     @body.split("\n").each do |line|
+      next if line =~ /\A\s{4,}/ # ignore code blocks
+      
       # 1 point for each 40 chars in a line.
       hits = (line.size / 40)
       add_score hits, "lines over 40 chars"

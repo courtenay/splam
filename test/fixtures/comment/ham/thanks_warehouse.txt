@@ -1,0 +1,15 @@
+Thanks for the info Rick. I'm pretty sure I got all the dreamhost stuff worked out correct. I think I may be getting confused with paths/database connections. Let me try to ask a small set of simple questions and see if that gets me on track.
+
+Let's say I want this at warehouse.mysite.com.
+
+1) I'm assuming I upload the *contents* of the warehouse tar file (the "application") to warehouse.mysite.com. I then make sure Dreamhost is pointing to the "public" folder that was part of these contents. Is this correct?
+
+2) Now I need to tweak some files. How many? From the directions it looks like 4:  htaccess, enviroment.rb, dispatch.rb and dispatch.fcgi. Is there any way to know if my tweaks were "correct" or not? You mention the database.yml file: do I also need to manually change the database.yml file myself (for a total of 5 modified files), or will the part where I initialize the database do this for me? How exactly do I change the Ruby paths (this is the part I'm least sure about as I'm not familiar with Ruby syntax).
+
+3) I run "rake warehouse:bootstrap" and answer all the questions to connect the app to my database. If successful it finishes and says "Warehouse is ready to roll". I got this far: does this mean everything is theoretically okay or does this not really tell me anything. How do I know if there's a problem if I get no error?
+
+4) The last step should be me navigating to warehouse.mysite.com and getting some sort of install screen. Is this correct? This is the part I'm not getting, just a "rails application failed" page.
+
+(In case it's useful info: in messinga around I did manage to ssh into the dreamhost server and type "rails blah blah" which caused it to install a bunch of files that successfully give me the default "Welcome to rails" screen when I navigate to warehouse.mysite.com. I'm taking this to mean that rails itself is running okay).
+
+Again, thanks for your time and I apologize for my ignorance in these types of things. I'm slowly learning...

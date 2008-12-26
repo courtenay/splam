@@ -16,16 +16,17 @@ class Splam::Rules::WordLength < Splam::Rule
   
   def run
     words = []
-    words = @body.split("\s").map do |word|
+    words = @body.split(/\s/).map do |word|
       word.size
     end
+    words.delete_if { |w| w =~ /^http\:\/\//}
 
     # Only count word lengths over 10
-    if words.size > 10
-      add_score 20, "Average word length over 5" if average(words) > 5
+    if words.size > 5
+      add_score 20, "Average word length over 5"  if average(words) > 5
       add_score 50, "Average word length over 10" if average(words) > 10
-      add_score 10, "Median word length over 5" if median(words) > 5
-      add_score 50, "Median word length over 10" if median(words) > 10      
+      add_score 10, "Median word length over 5"   if median(words) > 5
+      add_score 50, "Median word length over 10"  if median(words) > 10      
     end
   end
 end

@@ -1,0 +1,92 @@
+I know nothing. You can blame it all on Dreamhost: they offered a very easy interface to setup subversion without having to do much of anything. The good part is that I was very easily able to set up subversion and use it. I found it awesome for writing paper drafts and for the light programming I do. This subversion experience allowed  me to see the value in Warehouse. The bad news is that this means somebody with virtually no terminal or Rails experience (me!) is trying install Warehouse, and the installation instructions are definitely NOT written in a way individuals like me can fully understand. Certain parts seem like complete gibberish.
+
+So here's my attempt to document what a complete Terminal/Rails/Server novice needs to do to get Warehouse running on a Dreamhost server using OS X. I primarily need somebody to tell me if what I've outlined so far is correct, and to tell me specifically what to do for the parts where I'm lost. I'm hoping that with your help this thread can serve as a reference for any other novices like myself who would like to get this up and running.
+
+PART 1: Installing Warehouse on Dreamhost
+
+For this section, follow along with the page:
+http://warehouseapp.com/installing/warehouse-on-dreamhost
+
+1) Follow the instructions to setup a fully hosted domain through Dreamhost. For most people this means setting up a new subdomain. This is easily done through dreamhost's control panel. The only tricky bit here is that you will need to fill out a support certificate and ask Dreamhost to allow wildcards on this specific domain you setup. Just fill out a support request through the dreamhost control panel. It's one of the drop down menus in their support. Literally just say "I need wildcards on "subdomain.domain.com" and they should be able to get it working pretty fast.
+
+2) Here is where the hard stuff starts. 
+
+a) You need to "unzip Warehouse in the appropriate directory". What is the appropriate directory? I don't know, but I assume it's the root directory of the subdomain just created (HELP!). Now, when they say unzip in the appropriate directory they mean they want you to use TERMINAL to connect to the dreamhost server and use UNIX commands. The use of the terminal is going to be unavoidable in this process, but you can avoid it at this step if you'd like. The easy way (for people not familiar with the UNIX) is to just unzip the file in OS X and just FTP the folder to your new subdomain using your favorite FTP client. Whether you should ftp the entire "warehouse" folder or just it's contents: I'm not sure. (I actually used ftp to upload the .gz file, which I then used the terminal to unzip, and then I had to unzip the .tar file (I'm trying to learn as I go). I ended up with the warehouse folder in the root directory of the subdomain).
+
+b) Second, they want you to edit THREE files in this folder. The wording makes it seem like two, but it is really three. They are all located in "warehouse-1.0.4/public". Open them in some form of text editor and do the edits they specify (keeping with the FTP theme you can do this directly on the server with Transmit or Interarchy. Otherwise you are going to need to download the file, open with textedit, edit it, save it (make sure as plain text!), then re-upload the file). I  have no clue how to do this stuff directly through the terminal, but I realize that's how the cool kids do it.
+
+For both the "dispatch.rb" and "dispatch.fcgi" files, type in as a new line (make this the very first line on the file)
+
+ /usr/local/bin/ruby
+
+Just type this in as a new line and don't replace/overwrite/delete anything. For the ".htaccess" file, follow the directions they outline. Not sure why the give specific directions for only one of the three files. I guess it's obvious if you aren't clueless like me.
+
+3) Now you are going to be forced to use TERMINAL to check if you did this right. There's no avoiding it now: fire up the TERMINAL program (it's found in "Applications/utilities" on your computer) and type 
+
+ssh username@domain.com
+
+Username refers to your username to access the server (given to you by Dreamhost). Domain is your domain name with dreamhost. You'll then be asked for the password (also originally given to you by Dreamhost). If you get no error type:
+
+irb 
+
+which starts some form program and then type 
+
+require 'svn/core' 
+
+if it says "true", you did it! Type
+
+exit
+
+ to get out of irb (whatever that is)
+
+
+PART 2: Connecting to the Database!
+Okay, now you need to follow the standard installation instructions. Follow along with this page:
+http://warehouseapp.com/installing/installing-and-registering-warehouse
+
+1) The first thing you'll need to do is to setup a database for Warehouse to use. Do this from the "goodies -> manageMySQL" menu on in the Dreamhost control panel. 
+
+a) Database Name: whatever
+
+b) Hostname: you'll probably need to set-up a new hostname for the database. It's kind of confusing because it acts an awful lot like creating a subdomain, but it's not the same. AFAIK you can call the hostname whatever you want as it makes no difference to anything (other than your own organization). You'll end up with something like "database.domain.com". 
+
+c) User/Password info: whatever you want. Just keep note of them for future use.
+
+2) Okay, now you need to go back into TERMINAL and navigate to the root directory of Warehouse. This assumes you are still "connected" from that ssh business you just did. If not, just redo that part. Now, depending on how you unzipped, you might not need to do anything. If you dragged the warehouse folder CONTENTS to the server, don't do anything. If you dragged the folder (or the zip file and you unzipped on the server) type
+
+ls
+
+this will show you the name of any folder in the directory. Type 
+
+cd foldername
+
+where "foldername" is whatever folder 'ls' told you (probably "warehouse-1.0.4")
+
+now type
+
+rake warehouse:bootstrap
+
+Now it's going to ask you a bunch of questions:
+
+a) For "Host Name" type the host name you gave to dreamhost for your database.
+b) For "Database name" do the same (whatever you told dreamhost earlier)
+c) For "username", do the same
+d) For "password", do the same
+e) For "socket path" do nothing (just hit enter). I have no idea what this is.
+f) Answer "y" to the question and press enter
+
+A bunch of stuff flies by and hopefully at the end it says "Warehouse is ready to roll
+
+PART 3: FINALLY INSTALLING WAREHOUSE
+
+Now it wants you to use the terminal (I think) to navigate to a webpage using RUBY (I think). Type:
+
+script/server
+
+to launch some program. Now... I don't know what to do here. There's some syntax to navigate to a page but typing my warehouse domain address does nothing. So close, so close....
+
+Any help?
+
+(Bonus question: does Warehouse play well with the simple subversion setup Dreamhost has?)
+
+Thanks in advance!

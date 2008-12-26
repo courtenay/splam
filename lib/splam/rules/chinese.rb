@@ -4,6 +4,12 @@ class Splam::Rules::Chinese < Splam::Rule
     banned_words =[ # various chinese characters
       "\350\263\207",
       "\351\207\221",
+      "\357\274\222", # number 2 in weird unicode
+      "\357\274\224", # number 4 
+      "\357\274\225", # number 5
+      "\357\274\231", # number 9
+      "\357\274\215", # hyphen
+      /\\357\2\d\d\\\d{3}/,
       # "\357", # ugh, these don't work .. because they're only part of a character.
       # "\351",
       "\35"

@@ -1,0 +1,3 @@
+Fixed with the diff file linked below although not very elegant though
+
+http://railsbits.wh.atechmedia.com/browser/warehouse/redirect_to_requested_page_on_login.diff

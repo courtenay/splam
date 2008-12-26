@@ -1,0 +1,30 @@
+Ok, further along. Under Mongrel all seems to be working. Though it would have been nice if the version number in the big download button after purchasing indicated beta.
+
+Now, Site5 like Dreamhost I suppose requires things like this to run under FastCGI. Ok fine.. So here is what I have done.
+I am basically getting this in my error log:
+[Mon Oct 15 01:14:54 2007] [warn] FastCGI: (dynamic) server "/home/bgcode/public_html/dispatch.fcgi" has failed to remain running for 30 seconds given 3 attempts, its restart interval has been backed off to 600 seconds
+
+So, I did some searching and testing. First thing I did was rails testrails to create a new rails app. symlinked its public to my public_html. Modifed the .htaccess with RewriteRule ^(.*)$ dispatch.fcgi [QSA,L].
+Hit the domain from the web browser. Sweet. The rails welcome page. Just as you would expect.
+
+Removed the symlink to public_html, and recreated with /home/me/warehouse/current/public ( I let rake warehouse:setup do the directory structure ). Made the same changes to .htaccess.
+
+I also had to correct the path to ruby in all three dispatch files to: #!/usr/bin/env ruby
+
+Next, a visit to environment.rb to un-comment ENV['RAILS_ENV'] ||= 'production' as recommended in the Dreamhost instructions. 
+
+I played around trying and untrying a few other things, but no dice. Same deal. Works great in Mongrel but that just won't fly. I don't expect you guys to know what crazy setup Site5 has, just looking for some direction to take.
+
+More of the error:
+
+[Mon Oct 15 01:08:22 2007] [warn] FastCGI: (dynamic) server "/home/bgcode/public_html/dispatch.fcgi" has failed to remain running for 30 seconds given 3 attempts, its restart interval has been backed off to 600 seconds
+[Mon Oct 15 01:08:22 2007] [warn] FastCGI: (dynamic) server "/home/bgcode/public_html/dispatch.fcgi" (pid 1515) terminated by calling exit with status '1'
+	from /home/bgcode/apps/warehouse/releases/warehouse-1.0.4/vendor/rails/activerecord/lib/../../activesupport/lib/active_support/dependencies.rb:488:in `load'
+	from /home/bgcode/apps/warehouse/releases/warehouse-1.0.4/vendor/rails/activerecord/lib/../../activesupport/lib/active_support/dependencies.rb:342:in `new_constants_in'
+	from /home/bgcode/apps/warehouse/releases/warehouse-1.0.4/vendor/rails/activerecord/lib/../../activesupport/lib/active_support/dependencies.rb:488:in `load'
+	from /home/bgcode/apps/warehouse/releases/warehouse-1.0.4/config/initializers/svn.rb:1
+	from /home/bgcode/apps/warehouse/releases/warehouse-1.0.4/vendor/rails/activerecord/lib/../../activesupport/lib/active_support/dependencies.rb:495:in `require'
+	from /home/bgcode/apps/warehouse/releases/warehouse-1.0.4/vendor/rails/activerecord/lib/../../activesupport/lib/active_support/dependencies.rb:342:in `new_constants_in'
+	from /home/bgcode/apps/warehouse/releases/warehouse-1.0.4/vendor/rails/activerecord/lib/../../activesupport/lib/active_support/dependencies.rb:495:in `require'
+[Mon Oct 15 01:08:19 2007] [warn] FastCGI: (dynamic) server "/home/bgcode/public_html/dispatch.fcgi" (uid 33177, gid 33182) restarted (pid 1515)
+[Mon Oct 15 01:08:19 2007] [warn] FastCGI: (dynamic) server "/home/bgcode/public_html/dispatch.fcgi" has failed to remain running for 30 seconds given 3 attempts, its restart interval has been backed off to 600 seconds

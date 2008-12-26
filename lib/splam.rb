@@ -25,6 +25,7 @@ module Splam
       @splam[:body] = fieldname
       @splam[:rules] = Splam::Rule.subclasses
       @splam[:threshold] = threshold
+      @splam[:fieldname] = fieldname
     end
   end
   def splam_score; @splam_score; end
@@ -42,5 +43,9 @@ module Splam
       @splam_reasons << worker.reasons
     end
     @splam_score > splam[:threshold]
+  end
+  
+  def validates_as_spam
+    errors.add(@splam[:fieldname], "looks like spam.") if spam?
   end
 end

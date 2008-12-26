@@ -1,0 +1,13 @@
+The feed is embedded in the browsers auto detection 
+
+Example:
+
+`<link href="http://activereload.lighthouseapp.com/events.atom" rel="alternate" title="Events for activereload" type="application/atom+xml" />`
+
+Firefox:
+
+![firefox](http://img.skitch.com/20081126-cjfbte4ip7dk37kpq5mna5484c.jpg)
+
+Safari:
+
+![safari](http://img.skitch.com/20081126-fsxtxir3wgi2dsgnw1167mk3wk.jpg)
