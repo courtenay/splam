@@ -16,6 +16,11 @@ class Foo
   end
 end
 
+class FooCond
+  include ::Splam
+  splammable :body, 0, lambda { |s| false }
+  attr_accessor :body
+end  
 
 class SplamTest < Test::Unit::TestCase
   
@@ -23,6 +28,11 @@ class SplamTest < Test::Unit::TestCase
     f = Foo.new
     assert ! f.splam?
     assert_equal 10, f.splam_score
+  end
+  
+  def test_runs_conditions
+    f = FooCond.new
+    assert ! f.splam?
   end
 
   def test_scores_spam_really_high

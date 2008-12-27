@@ -29,13 +29,15 @@ module Splam
       @splam[:conditions] = conditions
     end
   end
+  # uhm attr_accessor?
   def splam_score; @splam_score; end
   def splam_reasons; @splam_reasons; end
   
   def splam?
+    splam = self.class.splam || raise("Splam is not initialized")
+    return false if splam[:conditions] && ! splam[:conditions].call(self)
     @splam_score = 0
     @splam_reasons = []
-    splam = self.class.splam || raise("Splam is not initialized")
     body = send(splam[:body])
     splam[:rules].each do |rule_class|
       worker = rule_class.new(body)
