@@ -15,7 +15,7 @@ module Splam
   
   module ClassMethods
     def splam; @splam; end
-    def splammable(fieldname, threshold=100)
+    def splammable(fieldname, threshold=100, conditions=nil)
       run_rules = []
       # todo: run only certain rules
       #  e.g. splammable :body, 100, [ :chinese, :html ]
@@ -26,12 +26,13 @@ module Splam
       @splam[:rules] = Splam::Rule.subclasses
       @splam[:threshold] = threshold
       @splam[:fieldname] = fieldname
+      @splam[:conditions] = conditions
     end
   end
   def splam_score; @splam_score; end
   def splam_reasons; @splam_reasons; end
   
-  def spam?
+  def splam?
     @splam_score = 0
     @splam_reasons = []
     splam = self.class.splam || raise("Splam is not initialized")
@@ -46,6 +47,6 @@ module Splam
   end
   
   def validates_as_spam
-    errors.add(@splam[:fieldname], "looks like spam.") if spam?
+    errors.add(@splam[:fieldname], "looks like spam.") if splam?
   end
 end

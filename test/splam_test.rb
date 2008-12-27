@@ -21,7 +21,7 @@ class SplamTest < Test::Unit::TestCase
   
   def test_runs_plugins
     f = Foo.new
-    assert ! f.spam?
+    assert ! f.splam?
     assert_equal 10, f.splam_score
   end
 
@@ -37,11 +37,11 @@ class SplamTest < Test::Unit::TestCase
       else
         Foo.splam[:threshold] = 99
       end
-      comment.spam? # todo: assert
+      spam = comment.splam?
       score = comment.splam_score
       #$stderr.puts "#{f} score: #{score}"
       #$stderr.puts "====================="
-      assert comment.spam?, "Comment #{f} was not spam, score was #{score} but threshold was #{Foo.splam[:threshold]}\nReasons were #{comment.splam_reasons.inspect}"
+      assert spam, "Comment #{f} was not spam, score was #{score} but threshold was #{Foo.splam[:threshold]}\nReasons were #{comment.splam_reasons.inspect}"
     end
   end
   
@@ -49,12 +49,12 @@ class SplamTest < Test::Unit::TestCase
     comment = Foo.new
     Dir.glob(File.join(File.dirname(__FILE__), "fixtures", "comment", "ham", "*.txt")).each do |f|
       comment.body = File.open(f).read
-      comment.spam?
+      spam = comment.splam?
       score = comment.splam_score
       #$stderr.puts "#{f} score: #{score}"
       #$stderr.puts "====================="
       
-      assert !comment.spam?, "File #{f} should be marked ham, but was marked with score #{score}\nReasons were #{comment.splam_reasons}\n\n#{comment.body}"
+      assert !spam, "File #{f} should be marked ham, but was marked with score #{score}\nReasons were #{comment.splam_reasons}\n\n#{comment.body}"
     end
   end
 end

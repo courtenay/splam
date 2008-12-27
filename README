@@ -32,7 +32,7 @@ Recommended serving directions:
     end
     
     comment = Comment.new :body => "This is spam!!!1"
-    comment.spam? # => false
+    comment.splam? # => false
     comment.splam_score # => 2
     comment.splam_reasons # => []
 
