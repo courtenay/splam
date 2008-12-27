@@ -36,9 +36,11 @@ module Splam
   def splam?
     splam = self.class.splam || raise("Splam is not initialized")
     return false if splam[:conditions] && ! splam[:conditions].call(self)
+    return false if skip_splam_check
     @splam_score = 0
     @splam_reasons = []
     body = send(splam[:body])
+    return false if body.nil?
     splam[:rules].each do |rule_class|
       worker = rule_class.new(body)
       worker.run
@@ -47,8 +49,8 @@ module Splam
     end
     @splam_score > splam[:threshold]
   end
-  
+  attr_accessor :skip_splam_check
   def validates_as_spam
-    errors.add(@splam[:fieldname], "looks like spam.") if splam?
+    errors.add(self.class.splam[:fieldname], "looks like spam.") if (skip_splam_check.nil? && splam?)
   end
 end
