@@ -1,7 +1,15 @@
 class Splam::Rule
   class << self
     attr_writer   :splam_key
+
+    # Global set of rules for all splammable classes.  By default it is an array of all Splam::Rule subclasses.
+    # It can be set to a subset of all rules, or even a hash with specified weights.
+    #   self.default_rules = [:bad_words, :bbcode]
+    #   self.default_rules = {:bad_words => 0.5, :bbcode => 7}
+    #
     attr_accessor :default_rules
+
+    # Index linking all splam_keys to the rule classes.  This is populated automatically.
     attr_reader   :rules
 
     def splam_key
