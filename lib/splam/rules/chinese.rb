@@ -1,4 +1,8 @@
 class Splam::Rules::Chinese < Splam::Rule
+  class << self
+    attr_accessor :base_score
+  end
+  self.base_score = 3
 
   def run
     banned_words =[ # various chinese characters
@@ -15,7 +19,7 @@ class Splam::Rules::Chinese < Splam::Rule
       "\35"
     ]
     banned_words.each do |word|
-      hits = (3 * @body.scan(word).size) # 1 point for every banned word
+      hits = (self.class.base_score * @body.scan(word).size) # 1 point for every banned word
       add_score hits, "Banned character: #{word}"
     end
   end

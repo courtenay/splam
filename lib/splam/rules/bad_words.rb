@@ -1,5 +1,11 @@
 class Splam::Rules::BadWords < Splam::Rule
+  class << self
+    attr_accessor :bad_word_score, :suspicious_word_score
+  end
   
+  self.bad_word_score       = 10
+  self.suspicious_word_score = 4
+
   def run
     bad_words = %w( sex sexy porn gay erotica viagra xxx erotismo porno porn lesbian amateur tit)
     bad_words |= %w( gratis erotismo porno torrent bittorrent adulto )
@@ -10,20 +16,20 @@ class Splam::Rules::BadWords < Splam::Rule
     bad_words.each do |word|
       results = @body.downcase.scan(word) 
       if results && results.size > 0
-        add_score((10 ** results.size), "nasty word: '#{word}'")
+        add_score((self.class.bad_word_score ** results.size), "nasty word: '#{word}'")
         # Add more points if the bad word is INSIDE a link
         @body.scan(/<a[^>]+>(.*?)<\/a>/).each do |match|
-          add_score 20 * match[0].scan(word).size, "nasty word inside a link: #{word}"
+          add_score self.class.bad_word_score * 2 * match[0].scan(word).size, "nasty word inside a link: #{word}"
         end
       end
     end
     suspicious_words.each do |word|
       results = @body.downcase.scan(word) 
       if results && results.size > 0
-        add_score (4 * results.size), "suspicious word: #{word}"
+        add_score (self.class.suspicious_word_score * results.size), "suspicious word: #{word}"
         # Add more points if the bad word is INSIDE a link
         @body.scan(/<a[^>]+>(.*?)<\/a>/).each do |match|
-          add_score((4 * match[0].scan(word).size), "suspicious word inside a link: #{word}")
+          add_score((self.class.suspicious_word_score * match[0].scan(word).size), "suspicious word inside a link: #{word}")
         end
       end
     end
