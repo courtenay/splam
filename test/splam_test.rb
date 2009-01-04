@@ -36,15 +36,15 @@ class SplamTest < Test::Unit::TestCase
       # some spam have a lower threshold denoted by their filename
       # trickier to detect
       if f =~ /\/(\d+)_\w+\.txt/
-        Foo.splam[:threshold] = $1.to_i
+        Foo.splam_suite.threshold = $1.to_i
       else
-        Foo.splam[:threshold] = 99
+        Foo.splam_suite.threshold = 99
       end
-      spam = comment.splam?
+      spam  = comment.splam?
       score = comment.splam_score
       #$stderr.puts "#{f} score: #{score}"
       #$stderr.puts "====================="
-      assert spam, "Comment #{f} was not spam, score was #{score} but threshold was #{Foo.splam[:threshold]}\nReasons were #{comment.splam_reasons.inspect}"
+      assert spam, "Comment #{f} was not spam, score was #{score} but threshold was #{Foo.splam_suite.threshold}\nReasons were #{comment.splam_reasons.inspect}"
     end
   end
   
