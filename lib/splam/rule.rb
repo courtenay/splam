@@ -1,21 +1,36 @@
 class Splam::Rule
   class << self
+    attr_writer :splam_key
     attr_reader :subclasses
+    attr_reader :rules
+
+    def splam_key
+      @splam_key || (self.splam_key = name.demodulize.underscore.to_sym)
+    end
+
+    def splam_key=(value)
+      Splam::Rule.rules.delete(@splam_key) if @splam_key
+      Splam::Rule.rules[value] = self
+      @splam_key               = value
+      value
+    end
   end
 
   def initialize(body)
-    @body = body
-    @score = 0
+    @body    = body
+    @score   = 0
     @reasons = []
   end
   
   def name
-    self.class.name.split("::")[-1]
+    self.class.splam_key
   end
-  
+
   def self.inherited(_subclass)
+    @rules      ||= {}
     @subclasses ||= []
     @subclasses << _subclass
+    _subclass.splam_key
     super
   end
   

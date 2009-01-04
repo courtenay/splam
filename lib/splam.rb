@@ -3,6 +3,10 @@
 #require File.dirname(__FILE__) + "/splam/rules"
 #require File.dirname(__FILE__) + "/splam/rules/russian"
 
+require 'rubygems'
+gem 'activesupport'
+require 'active_support/inflector'
+
 module Splam
   def self.included(base)
     # Autoload all files in rules

@@ -1,11 +1,4 @@
-require 'test/unit'
-$:.unshift(File.dirname(__FILE__) + '/../lib')
-$:.unshift(File.dirname(__FILE__) + '/../lib/splam')
-
-require 'splam'
-require 'splam/rule'
-require 'splam/rules'
-# require 'splam/rules/russian'
+require File.join(File.dirname(__FILE__), 'test_helper')
 
 class Foo
   include ::Splam
@@ -20,7 +13,7 @@ class FooCond
   include ::Splam
   splammable :body, 0, lambda { |s| false }
   attr_accessor :body
-end  
+end
 
 class SplamTest < Test::Unit::TestCase
   
