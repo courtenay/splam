@@ -83,7 +83,7 @@ module Splam
       #  e.g. splammable :body, 100, [ :chinese, :html ]
       # todo: define some weighting on the model level
       #  e.g. splammable :body, 50, { :russian => 2.0 }
-      @splam_suite = Suite.new(fieldname, Splam::Rule.subclasses, threshold, conditions, &block)
+      @splam_suite = Suite.new(fieldname, Splam::Rule.default_rules, threshold, conditions, &block)
     end
   end
 

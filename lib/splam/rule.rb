@@ -1,8 +1,8 @@
 class Splam::Rule
   class << self
-    attr_writer :splam_key
-    attr_reader :subclasses
-    attr_reader :rules
+    attr_writer   :splam_key
+    attr_accessor :default_rules
+    attr_reader   :rules
 
     def splam_key
       @splam_key || (self.splam_key = name.demodulize.underscore.to_sym)
@@ -32,8 +32,8 @@ class Splam::Rule
 
   def self.inherited(_subclass)
     @rules      ||= {}
-    @subclasses ||= []
-    @subclasses << _subclass
+    @default_rules ||= []
+    @default_rules << _subclass
     _subclass.splam_key
     super
   end
@@ -62,5 +62,4 @@ class Splam::Rule
       @score += points
     end
   end
-  
 end
