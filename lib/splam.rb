@@ -9,6 +9,10 @@ require 'active_support/inflector'
 
 module Splam
   class Suite < Struct.new(:body, :rules, :threshold, :conditions)
+    # Should be a Rack::Request, in case you want to inspect user agents and whatnot
+    # unimplemented, cry about it fanboy!
+    attr_accessor :request
+
     attr_reader :score
     attr_reader :reasons
 
@@ -25,11 +29,11 @@ module Splam
       end
     end
 
-    def run(body)
+    def run(record)
       score, reasons = 0, []
       rules.each do |rule_class, weight|
         weight ||= 1
-        worker   = rule_class.run(body, weight)
+        worker   = rule_class.run(self, record, weight)
         score   += worker.score
         reasons << worker.reasons
       end
@@ -71,7 +75,7 @@ module Splam
     #     splam.rules     = [Splam::Rules::Chinese]
     #     # Mix and match, we're all friends here
     #     splam.rules     = [Splam::Rules::Chinese, :html]
-    #     # Specify optional weights (not implemented, cry about it fanboy!)
+    #     # Specify optional weights
     #     splam.rules     = {Splam::Rules::Chinese => 1.2, :html => 5.0}
     #
     def splammable(fieldname, threshold=100, conditions=nil, &block)
@@ -106,11 +110,10 @@ module Splam
 protected
   def run_splam_suite(attr_suffix = nil)
     splam_suite = self.class.splam_suite || raise("Splam::Suite is not initialized")
-    return false if splam_suite.conditions && !splam_suite.conditions.call(self)
-    return false if skip_splam_check
-    body = send(splam_suite.body)
-    return false if body.nil?
-    @splam_score, @splam_reasons = splam_suite.run(body)
+    return false if (splam_suite.conditions && !splam_suite.conditions.call(self)) || 
+                    skip_splam_check ||
+                    send(splam_suite.body).nil?
+    @splam_score, @splam_reasons = splam_suite.run(self)
     instance_variable_get("@splam_#{attr_suffix}") if attr_suffix
   end
 end

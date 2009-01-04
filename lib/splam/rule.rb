@@ -22,8 +22,8 @@ class Splam::Rule
     end
   end
 
-  def initialize(body, weight = 1.0)
-    @body, @weight, @score, @reasons = body, weight, 0, []
+  def initialize(suite, record, weight = 1.0)
+    @suite, @weight, @score, @reasons, @body = suite, weight, 0, [], record.send(suite.body)
   end
   
   def name
@@ -38,13 +38,20 @@ class Splam::Rule
     super
   end
 
-  attr_reader   :body, :weight
+  attr_reader   :suite, :body, :weight
   attr_accessor :reasons, :score
 
-  # Overload this method to run your rule
+  # Overload this method to run your rule.  Call #add_score to modify the suite's splam score.
+  #
+  #   def run
+  #     add_score -5, 'water'
+  #     add_score  5, 'PBR'
+  #     add_score 10, 'black butte'
+  #     add_score 30, 'red wine'
+  #     add_score 95, 'everclear'
+  #   end
+  #
   def run
-    # abstract
-    0
   end
   
   def add_score(points, reason)
