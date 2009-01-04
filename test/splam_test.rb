@@ -1,28 +1,67 @@
 require File.join(File.dirname(__FILE__), 'test_helper')
 
-class Foo
-  include ::Splam
-  splammable :body
-  attr_accessor :body
-  def body
-    @body || "This is body\320\224 \320\199"
-  end
-end
-
-class FooCond
-  include ::Splam
-  splammable :body, 0, lambda { |s| false }
-  attr_accessor :body
-end
-
 class SplamTest < Test::Unit::TestCase
-  
+  class FixedRule < Splam::Rule
+    def run
+      add_score 25, "The force is strong with this one"
+    end
+  end
+
+  class Foo
+    include ::Splam
+    splammable :body
+    attr_accessor :body
+    def body
+      @body || "This is body\320\224 \320\199"
+    end
+  end
+
+  class FooCond
+    include ::Splam
+    splammable :body, 0, lambda { |s| false }
+    attr_accessor :body
+  end
+
+  class PickyFoo
+    include ::Splam
+    splammable :body do |s|
+      s.rules = [:fixed_rule, FixedRule]
+    end
+
+    def body
+      'lol wut'
+    end
+  end
+
+  class HeavyFoo
+    include ::Splam
+    splammable :body do |s|
+      s.rules = {:fixed_rule => 3}
+    end
+
+    def body
+      'lol wut'
+    end
+  end
+
   def test_runs_plugins
     f = Foo.new
     assert ! f.splam?
-    assert_equal 10, f.splam_score
+    assert_equal 35, f.splam_score
   end
-  
+
+  def test_runs_plugins_with_specified_rules
+    f = PickyFoo.new
+    assert ! f.splam?
+    assert_equal 25, f.splam_score
+  end
+
+  def test_runs_plugins_with_specified_weighted_rules
+    f = HeavyFoo.new
+    assert ! f.splam?
+    assert_equal 75, f.splam_score
+  end
+
   def test_runs_conditions
     f = FooCond.new
     assert ! f.splam?

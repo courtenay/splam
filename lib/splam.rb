@@ -12,11 +12,24 @@ module Splam
     attr_reader :score
     attr_reader :reasons
 
+    def initialize(body, rules, threshold, conditions, &block)
+      super(body, rules, threshold, conditions)
+      block.call(self) if block
+      self.rules = self.rules.inject({}) do |memo, (rule, weight)|
+        if (rule.is_a?(Class) && rule.superclass == Splam::Rule) || rule = Splam::Rule.rules[rule]
+          memo[rule] = weight || 1.0
+        else
+          raise ArgumentError, "Invalid rule: #{rule.inspect}"
+        end
+        memo
+      end
+    end
+
     def run(body)
       score, reasons = 0, []
-      rules.each do |rule_class|
-        worker = rule_class.new(body)
-        worker.run
+      rules.each do |rule_class, weight|
+        weight ||= 1
+        worker   = rule_class.run(body, weight)
         score   += worker.score
         reasons << worker.reasons
       end
@@ -39,13 +52,34 @@ module Splam
   
   module ClassMethods
     def splam_suite; @splam_suite; end
+    # Set #body attribute as splammable with default threshold of 100
+    #   splammable :body
+    # 
+    # Set #body attribute as splammable with custom threshold
+    #   splammable :body, 50
+    #
+    # Set #body splammable with threshold and a conditions block?
+    #   splamamble :body, 50, lambda { |record| record.skip_splam_check }
+    #
+    # Set any Splam::Suite options
+    #   splammable :body do |splam|
+    #     splam.threshold  = 150
+    #     splam.conditions = lambda { |r| r.body.size.zero? }
+    #     # Set rules with #splam_key value
+    #     splam.rules     = [:chinese, :html]
+    #     # Set rules with Class instances
+    #     splam.rules     = [Splam::Rules::Chinese]
+    #     # Mix and match, we're all friends here
+    #     splam.rules     = [Splam::Rules::Chinese, :html]
+    #     # Specify optional weights (not implemented, cry about it fanboy!)
+    #     splam.rules     = {Splam::Rules::Chinese => 1.2, :html => 5.0}
+    #
     def splammable(fieldname, threshold=100, conditions=nil, &block)
       # todo: run only certain rules
       #  e.g. splammable :body, 100, [ :chinese, :html ]
       # todo: define some weighting on the model level
       #  e.g. splammable :body, 50, { :russian => 2.0 }
-      @splam_suite = Suite.new(fieldname, Splam::Rule.subclasses, threshold, conditions)
-      block.call(@splam_suite) if block
+      @splam_suite = Suite.new(fieldname, Splam::Rule.subclasses, threshold, conditions, &block)
     end
   end
 
@@ -72,7 +106,7 @@ module Splam
 protected
   def run_splam_suite(attr_suffix = nil)
     splam_suite = self.class.splam_suite || raise("Splam::Suite is not initialized")
-    return false if splam_suite.conditions && ! splam_suite.conditions.call(self)
+    return false if splam_suite.conditions && !splam_suite.conditions.call(self)
     return false if skip_splam_check
     body = send(splam_suite.body)
     return false if body.nil?

@@ -14,12 +14,16 @@ class Splam::Rule
       @splam_key               = value
       value
     end
+
+    def run(*args)
+      rule = new(*args)
+      rule.run
+      rule
+    end
   end
 
-  def initialize(body)
-    @body    = body
-    @score   = 0
-    @reasons = []
+  def initialize(body, weight = 1.0)
+    @body, @weight, @score, @reasons = body, weight, 0, []
   end
   
   def name
@@ -33,9 +37,9 @@ class Splam::Rule
     _subclass.splam_key
     super
   end
-  
-  attr_accessor :reasons
-  attr_accessor :score
+
+  attr_reader   :body, :weight
+  attr_accessor :reasons, :score
 
   # Overload this method to run your rule
   def run
@@ -46,7 +50,8 @@ class Splam::Rule
   def add_score(points, reason)
     @score ||= 0
     if points != 0
-      @reasons << "#{name}: [#{points}] #{reason}"
+      @reasons << "#{name}: [#{points}#{" * #{weight}" if weight != 1}] #{reason}"
+      points = points * weight
       @score += points
     end
   end
