@@ -104,7 +104,7 @@ module Splam
   end
 
   def validates_as_spam
-    errors.add(self.class.splam_suite.body, "looks like spam.") if (skip_splam_check.nil? && splam?)
+    errors.add(self.class.splam_suite.body, "looks like spam.") if (!skip_splam_check? && splam?)
   end
 
 protected
@@ -115,5 +115,10 @@ protected
                     send(splam_suite.body).nil?
     @splam_score, @splam_reasons = splam_suite.run(self)
     instance_variable_get("@splam_#{attr_suffix}") if attr_suffix
+  end
+  
+  def skip_splam_check?
+    # This enables us to use a checkbox
+    skip_splam_check.to_i > 0
   end
 end
