@@ -36,7 +36,7 @@ module Splam
   def splam?
     splam = self.class.splam || raise("Splam is not initialized")
     return false if splam[:conditions] && ! splam[:conditions].call(self)
-    return false if skip_splam_check
+    return false if skip_splam_check?
     @splam_score = 0
     @splam_reasons = []
     body = send(splam[:body])
@@ -51,6 +51,10 @@ module Splam
   end
   attr_accessor :skip_splam_check
   def validates_as_spam
-    errors.add(self.class.splam[:fieldname], "looks like spam.") if (skip_splam_check.nil? && splam?)
+    errors.add(self.class.splam[:fieldname], "looks like spam.") if (!skip_splam_check? && splam?)
+  end
+  
+  def skip_splam_check?
+    skip_splam_check.to_i > 0
   end
 end
