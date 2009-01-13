@@ -77,7 +77,7 @@ class SplamTest < Test::Unit::TestCase
       if f =~ /\/(\d+)_\w+\.txt/
         Foo.splam_suite.threshold = $1.to_i
       else
-        Foo.splam_suite.threshold = 99
+        Foo.splam_suite.threshold = 250
       end
       spam  = comment.splam?
       score = comment.splam_score
