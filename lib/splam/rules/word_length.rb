@@ -26,7 +26,7 @@ class Splam::Rules::WordLength < Splam::Rule
       add_score 20, "Average word length over 5"  if average(words) > 5
       add_score 50, "Average word length over 10" if average(words) > 10
       add_score 10, "Median word length over 5"   if median(words) > 5
-      add_score 50, "Median word length over 10"  if median(words) > 10      
+      add_score 50, "Median word length over 10"  if median(words) > 10
     end
   end
 end
