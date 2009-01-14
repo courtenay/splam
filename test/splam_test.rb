@@ -64,20 +64,20 @@ class SplamTest < Test::Unit::TestCase
 
   def test_runs_conditions
     f = FooCond.new
-    assert ! f.splam?
+    assert f.splam? # it IS spam, coz threshold is 0
   end
 
   def test_scores_spam_really_high
-    comment = Foo.new
     Dir.glob(File.join(File.dirname(__FILE__), "fixtures", "comment", "spam", "*.txt")).each do |f|
+      comment = Foo.new
       spam = File.open(f).read
       comment.body = spam
       # some spam have a lower threshold denoted by their filename
       # trickier to detect
-      if f =~ /\/(\d+)_\w+\.txt/
+      if f =~ /\/(\d+)_.*\.txt/
         Foo.splam_suite.threshold = $1.to_i
       else
-        Foo.splam_suite.threshold = 99
+        Foo.splam_suite.threshold = 180
       end
       spam  = comment.splam?
       score = comment.splam_score
@@ -88,8 +88,8 @@ class SplamTest < Test::Unit::TestCase
   end
   
   def test_scores_ham_low
-    comment = Foo.new
     Dir.glob(File.join(File.dirname(__FILE__), "fixtures", "comment", "ham", "*.txt")).each do |f|
+      comment = Foo.new
       comment.body = File.open(f).read
       spam = comment.splam?
       score = comment.splam_score

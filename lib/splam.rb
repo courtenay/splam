@@ -41,7 +41,7 @@ module Splam
     end
 
     def splam?(score)
-      score > threshold
+      score >= threshold
     end
   end
 

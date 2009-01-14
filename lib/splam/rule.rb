@@ -66,7 +66,7 @@ class Splam::Rule
     @score ||= 0
     if points != 0
       @reasons << "#{name}: [#{points}#{" * #{weight}" if weight != 1}] #{reason}"
-      points = points * weight
+      points = points * weight.to_i
       @score += points
     end
   end
