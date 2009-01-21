@@ -22,6 +22,9 @@ class Splam::Rules::BadWords < Splam::Rule
         @body.scan(/<a[^>]+>(.*?)<\/a>/).each do |match|
           add_score self.class.bad_word_score * 4 * match[0].scan(word).size, "nasty word inside a link: #{word}"
         end
+        @body.scan(/<a(.*?)>/).each do |match|
+          add_score self.class.bad_word_score * 4 * match[0].scan(word).size, "nasty word inside a URL: #{word}"
+        end
       end
     end
     suspicious_words.each do |word|
