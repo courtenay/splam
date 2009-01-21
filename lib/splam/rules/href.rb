@@ -5,6 +5,7 @@ class Splam::Rules::Href < Splam::Rule
   def run
     # add_score 3 * @body.scan("href=http").size, "Shitty html 'href=http'" # 3 points for shitty html
     add_score 15 * @body.scan(/href\=\s*http/).size, "Shitty html 'href=http'" # 15 points for shitty html
+    add_score 15 * @body.scan(/href\="\s+http/).size, "Shitty html 'href=\" http'" # 15 points for shitty html
     add_score 50 * @body.scan(/\A<a.*?<\/a>\Z/).size, "Single link post'"      # 50 points for shitty
 
     link_count = @body.scan("http://").size

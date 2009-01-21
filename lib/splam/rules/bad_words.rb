@@ -9,11 +9,11 @@ class Splam::Rules::BadWords < Splam::Rule
   def run
     bad_words = %w( sex sexy porn gay erotica viagra xxx erotismo porno porn lesbian amateur tit)
     bad_words |= %w( gratis erotismo porno torrent bittorrent adulto )
-    bad_words |= %w( cialis viagra )
+    bad_words |= %w( cialis viagra payday loan )
     bad_words << /pel?cula/ << /pornogr?fica/ << "portal porno" # srsly, spamming in spanish?
 
     suspicious_words = %w( free buy galleries dating gallery hard hardcore video homemade celebrity adult pharmacy overnight shipping free hot movie nylon arab ??????)
-    suspicious_words << "forums/member.php?u=" << "chat room" << "free chat" << "yahoo chat"
+    suspicious_words << "forums/member.php?u=" << "chat room" << "free chat" << "yahoo chat" << "page.php"
     bad_words.each do |word|
       results = @body.downcase.scan(word) 
       if results && results.size > 0
