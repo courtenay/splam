@@ -1,0 +1,51 @@
+Hello All,
+Thought i should post this as this might help someone trying to get some percent off on their purchase. I am not the inventor of this method. I saw this on one forums sticky and was very popular just see if it works out for you.
+Here it is i am pasting the method below
+--------------------------------------
+
+Since several have asked me how I get my Amazon gold box quick picks to look like the image I attached I decided to post the write up that I read which shows how to manipulate whats picked for your quick picks. So here we go:
+
+Basically your Quick Picks are your personal Amazon Deals of the Day (DotD) that have been catered to your past purchase history.
+
+This takes a day+ to work and is definitely hit or miss on what is offered.
+
+To see your current "Quick Picks"
+
+* Go to hxxp://www.amazon.com/ (make sure you are signed in)
+* Click on "Today's Deals" next to the gold box at the top
+* Scroll down to see Your Name's Quick Picks
+
+Now onto the 'manipulation'
+
+Step 1:
+Let's say you want an Xbox 360, what you need to do is 'fake' Amazon into thinking you own something related to it, say an Xbox 360 Controller. So search for a Controller, and then at the details page do a search for "Rate this item to improve your recommendations" and next to Rate this item click on "I own it". What this does is link it to your recommendations
+
+Step 2:
+
+* At the top of Amazon's page, click on "Recommendations"
+* This will list everything that is recommend broken down by category.
+* Remove everything not related to Xbox by clicking "Not interested" this may take quite a bit of time if you've purchased a few items from Amazon. Another quick way to remove unwanted items is to click on "Fix This" on an item and then click on "Don't use for recommendations"
+
+Step 3: Come back the next day and see what Amazon has put in your "Quick Picks"
+
+Yesterday I did just this, I added that I owned an Xbox 360 Controller, cleaned up my non-related recommendations and then today I was offered a Quick Pick of 5% off the Xbox 360 Arcade bundle: $265.99 vs $279.99, a savings of $14
+
+This should work for practically anything, be it a CD, a book, or whatever, just add something that is somewhat related to what you want and chances are it might show up the next day.
+
+Resetting Your Gold Box Quick Picks (Thanks to baboymo)
+
+for those getting random crap in their Gold Box deals, here's a trick that will reset your picks to what you want.
+
+1. Go to recommendations
+2. Click link that says "These recommendations are based on items you own and more."
+3. Click each product that you used to get items in your Gold Box.
+4. Scroll down to "rate this item to improve your recommendations" and de-rate and de-own it (it will save automatically).
+5. Search for a similar product and rate and own it.
+6. Next day your Gold Box should be filled with what you want.
+
+Note: It appears if you don't take advantage of the Gold Box deals, that's when you'll start to see random crap after several days. Just reset it and voila!
+---------------------------------
+
+Enjoy [IMG]http://www.sharemyphotos.info/O/K.gif[/IMG]
+
+To give credit please use my [url=http://www.amazon.com/gp/redirect.html?ie=UTF8&location=http%3A//www.amazon.com/gp/goldbox?ie=UTF8&ref_=cs_top_nav_gb27&tag=informjuncti-20&linkCode=ur2&camp=1789&creative=390957]LINK HERE[/url] I will be greatfull
