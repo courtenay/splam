@@ -7,14 +7,14 @@ class Splam::Rules::BadWords < Splam::Rule
   self.suspicious_word_score = 4
 
   def run
-    bad_words = %w( sex sexy porn gay erotica viagra xxx erotismo porno porn lesbian amateur tit)
+    bad_words = %w( sex sexy porn gay erotica viagra erotismo porno porn lesbian amateur tit)
     bad_words |= %w( gratis erotismo porno torrent bittorrent adulto )
     bad_words |= %w( cialis viagra payday loan )
     bad_words |= %w( webcam  free-web-host)
     bad_words << /pel?cula/ << /pornogr?fica/ << "portal porno" # srsly, spamming in spanish?
 
     suspicious_words =  %w( free buy galleries dating gallery hard hardcore video homemade celebrity ) << "credit card"
-    suspicious_words |= %w( adult pharmacy overnight shipping free hot movie nylon arab ?????? )
+    suspicious_words |= %w( adult pharmacy overnight shipping free hot movie nylon arab ?????? xxx)
     suspicious_words << "forums/member.php?u=" << "chat room" << "free chat" << "yahoo chat" << "page.php"
     bad_words.each do |word|
       results = @body.downcase.scan(word) 
