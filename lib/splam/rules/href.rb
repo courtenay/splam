@@ -21,6 +21,7 @@ class Splam::Rules::Href < Splam::Rule
       'cn' => 20,  # Chinese? spammer.
       'us' => 8,   # .us ? possibly spam
       'it' => 5,
+      'tk' => 20,
       'pl' => 8,
       'info' => 20, 
       'biz'  => 40 # no-one uses these for reals
@@ -32,8 +33,8 @@ class Splam::Rules::Href < Splam::Rule
     
     tokens = @body.split(" ")
     if tokens[-1] =~ /^http:\/\//
-      add_score 50, "Text ends in a link"
-      add_score 10, "Text ends in a link and only has one link" if link_count == 1
+      add_score 10, "Text ends in a http token"
+      add_score 50, "Text ends in a http token and only has one token" if link_count == 1
     end
     
     @body.scan(/http:\/\/(.*?)[\/\]?]/) do |match|

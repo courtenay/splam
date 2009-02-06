@@ -81,7 +81,7 @@ class SplamTest < Test::Unit::TestCase
       end
       spam  = comment.splam?
       score = comment.splam_score
-      #$stderr.puts "#{f} score: #{score}"
+      #$stderr.puts "#{f} score: #{score}\n#{comment.splam_reasons.inspect}"
       #$stderr.puts "====================="
       assert spam, "Comment #{f} was not spam, score was #{score} but threshold was #{Foo.splam_suite.threshold}\nReasons were #{comment.splam_reasons.inspect}"
     end
