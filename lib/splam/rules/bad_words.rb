@@ -7,7 +7,7 @@ class Splam::Rules::BadWords < Splam::Rule
   self.suspicious_word_score = 4
 
   def run
-    bad_words = %w( sex sexy porn gay erotica viagra erotismo porno porn lesbian amateur tit)
+    bad_words = %w( sex sexy porn gay erotica viagra erotismo porno porn lesbian amateur tit\b)
     bad_words |= %w( gratis erotismo porno torrent bittorrent adulto )
     bad_words |= %w( cialis viagra payday loan jihad )
     bad_words |= %w( webcam  free-web-host rapidshare muslim)

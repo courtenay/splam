@@ -96,7 +96,7 @@ class SplamTest < Test::Unit::TestCase
       #$stderr.puts "#{f} score: #{score}"
       #$stderr.puts "====================="
       
-      assert !spam, "File #{f} should be marked ham, but was marked with score #{score}\nReasons were #{comment.splam_reasons}\n\n#{comment.body}"
+      assert !spam, "File #{f} should be marked ham < #{Foo.splam_suite.threshold}, but was marked with score #{score}\nReasons were #{comment.splam_reasons.inspect}\n\n#{comment.body}"
     end
   end
 end
