@@ -10,8 +10,8 @@ class Splam::Rules::LineLength < Splam::Rule
     lines.each do |line|
       next if line =~ /\A\s{4,}/ # ignore code blocks
 
-      multiplier = (lines.size == 1) ? 10 : 1 # one line? fail.
-        
+      # multiplier = (lines.size == 1) ? 10 : 1 # one line? fail.
+      multiplier = 1
       
       # 1 point for each 40 chars in a line.
       hits = (line.size / 40) * multiplier
