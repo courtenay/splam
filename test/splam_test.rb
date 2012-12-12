@@ -7,12 +7,25 @@ class SplamTest < Test::Unit::TestCase
     end
   end
 
+  class User
+    attr_accessor :trusted
+    def trusted?
+      trusted
+    end
+    def email
+      "test@test.com"
+    end
+  end
+
   class Foo
     include ::Splam
     splammable :body
     attr_accessor :body
     def body
       @body || "This is body\320\224 \320\199"
+    end
+    def user
+      User.new
     end
   end
 
@@ -27,7 +40,9 @@ class SplamTest < Test::Unit::TestCase
     splammable :body do |s|
       s.rules = [:fixed_rule, FixedRule]
     end
-
+    def user
+      User.new
+    end
     def body
       'lol wut'
     end
@@ -38,6 +53,9 @@ class SplamTest < Test::Unit::TestCase
     splammable :body do |s|
       s.rules = {:fixed_rule => 3}
     end
+    def user
+      User.new
+    end
 
     def body
       'lol wut'
@@ -47,7 +65,7 @@ class SplamTest < Test::Unit::TestCase
   def test_runs_plugins
     f = Foo.new
     assert ! f.splam?
-    assert_equal 35, f.splam_score
+    assert_equal 40, f.splam_score
   end
 
   def test_runs_plugins_with_specified_rules

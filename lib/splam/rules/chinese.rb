@@ -2,7 +2,7 @@ class Splam::Rules::Chinese < Splam::Rule
   class << self
     attr_accessor :base_score
   end
-  self.base_score = 3
+  self.base_score = 5
 
   def run
     banned_words =[ # various chinese characters

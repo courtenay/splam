@@ -66,6 +66,7 @@ class Splam::Rules::BadWords < Splam::Rule
           @body.scan(/<a(.*?)>/).each do |match|
             add_score self.class.bad_word_score * 10 * match[0].scan(word).size, "nasty word inside a URL: #{word}"
           end
+
         end
         if counter > (wordlist.size / 2)
           add_score 1000, "Lots of bad words from one genre (#{key}): #{counter}"
