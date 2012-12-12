@@ -7,7 +7,7 @@ class Splam::Rules::ArmsRace < Splam::Rule
 
   # This is where you put banned domain names or otherwise
   def run
-    shitty_sites = ["inquisitr"]    
+    shitty_sites = ["inquisitr", "beeplog"]    
     shitty_sites.each do |word|
       results = @body.downcase.scan(word) 
       if results && results.size > 0

@@ -4,8 +4,8 @@ class Splam::Rules::Href < Splam::Rule
   
   def run
     # add_score 3 * @body.scan("href=http").size, "Shitty html 'href=http'" # 3 points for shitty html
-    add_score 15 * @body.scan(/href\=\s*http/).size, "Shitty html 'href=http'" # 15 points for shitty html
-    add_score 15 * @body.scan(/href\="\s+http/).size, "Shitty html 'href=\" http'" # 15 points for shitty html
+    add_score 35 * @body.scan(/href\=\s*http/).size, "Shitty html 'href=http'" # 15 points for shitty html
+    add_score 35 * @body.scan(/href\="\s+http/).size, "Shitty html 'href=\" http'" # 15 points for shitty html
     add_score 50 * @body.scan(/\A<a.*?<\/a>\Z/).size, "Single link post'"      # 50 points for shitty
 
     link_count = @body.scan("http://").size
@@ -13,7 +13,7 @@ class Splam::Rules::Href < Splam::Rule
     add_score 50, "More than 10 links" if link_count > 10  # more than 10 links? spam.
     add_score 100, "More than 20 links" if link_count > 20 # more than 20 links? definitely spam.
     add_score 1000, "More than 50 links" if link_count > 50 # more than 20 links? definitely spam.
-    
+        
     # Modify these scores to weight certain problematic domains.
     # You may need to modify these for your application
     suspicious_top_level_domains = {
@@ -22,6 +22,7 @@ class Splam::Rules::Href < Splam::Rule
       'us' => 8,   # .us ? possibly spam
       'it' => 5,
       'tk' => 20,
+      'eu' => 20,
       'pl' => 8,
       'info' => 20, 
       'biz'  => 40 # no-one uses these for reals
@@ -33,11 +34,12 @@ class Splam::Rules::Href < Splam::Rule
     
     tokens = @body.split(" ")
     if tokens[-1] =~ /^http:\/\//
-      add_score 10, "Text ends in a http token"
-      add_score 50, "Text ends in a http token and only has one token" if link_count == 1
+      add_score 20, "Text ends in a http token"
+      add_score 150, "Text ends in a http token and only has one token" if link_count == 1
+      add_score 150, "Text ends in a http token with a shitty domain " if tokens[-1].match(/http:\/\/#{suspicious_sites.keys.join("|")}\./)
     end
     
-    @body.scan(/http:\/\/(.*?)[\/\]?]/) do |match|
+    @body.scan(/http:\/\/(.*?)[\/\>\]?]/) do |match|
       # $stderr.puts "checking #{match}"
       if domain = match.to_s.split(".")
         tld = domain[-1]
@@ -48,7 +50,9 @@ class Splam::Rules::Href < Splam::Rule
         
         if found = suspicious_sites[domain[-2]]
           add_score found, "Suspicious hostname: '#{domain[-2]}'"
+          add_score found * 5, "..document ends in suspicious hostname" if tokens[-1] =~ /^http:\/\//
         end
+        
       end
     end
   end

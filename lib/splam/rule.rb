@@ -30,8 +30,8 @@ class Splam::Rule
     end
   end
 
-  def initialize(suite, record, weight = 1.0)
-    @suite, @weight, @score, @reasons, @body = suite, weight, 0, [], record.send(suite.body)
+  def initialize(suite, record, weight = 1.0, request = nil)
+    @suite, @weight, @score, @reasons, @body, @request = suite, weight, 0, [], record.send(suite.body), request
   end
   
   def name
@@ -70,4 +70,15 @@ class Splam::Rule
       @score += points
     end
   end
+
+  def line_safe?(string)
+    ([
+      /\.dylib\b/,
+      /\b0x[0-9a-f]{6,16}\b/i,
+      /\b\/Applications\//,
+      /\b\/System\/Library\//,
+      /\bLibrary\/Application Support\//
+    ].map {|r| r.match string }).compact.size > 0
+  end
+
 end

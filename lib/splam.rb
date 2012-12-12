@@ -29,11 +29,11 @@ module Splam
       end
     end
 
-    def run(record)
+    def run(record, request)
       score, reasons = 0, []
       rules.each do |rule_class, weight|
         weight ||= 1
-        worker   = rule_class.run(self, record, weight)
+        worker   = rule_class.run(self, record, weight, request)
         score   += worker.score
         reasons << worker.reasons
       end
@@ -51,6 +51,7 @@ module Splam
     Dir["#{File.dirname(__FILE__)}/splam/rules/*.rb"].each do |f|
       require f
     end
+    require "splam/ngram"
     base.send :extend, ClassMethods
   end
   
@@ -113,7 +114,8 @@ protected
     return false if (splam_suite.conditions && !splam_suite.conditions.call(self)) || 
                     skip_splam_check ||
                     send(splam_suite.body).nil?
-    @splam_score, @splam_reasons = splam_suite.run(self)
+    @request = splam_suite.request.call(self) if splam_suite.request
+    @splam_score, @splam_reasons = splam_suite.run(self, @request)
     instance_variable_get("@splam_#{attr_suffix}") if attr_suffix
   end
   
