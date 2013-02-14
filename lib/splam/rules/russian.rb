@@ -1,3 +1,4 @@
+# encoding: utf-8
 class Splam::Rules::Russian < Splam::Rule
 
   def run

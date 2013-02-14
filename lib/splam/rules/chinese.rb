@@ -1,3 +1,4 @@
+# encoding: utf-8
 class Splam::Rules::Chinese < Splam::Rule
   class << self
     attr_accessor :base_score
@@ -33,11 +34,11 @@ class Splam::Rules::Chinese < Splam::Rule
       "\350\216\216",
       
       "\357\274\215", # hyphen
-      /\\357\2\d\d\\\d{3}/,
+      # /\\357\2\d\d\\\d{3}/, # TODO SyntaxError on 1.9
       # "\357", # ugh, these don't work .. because they're only part of a character.
       # "\351",
       "\35"
-    ]
+    ].compact
     banned_words.each do |word|
       hits = (self.class.base_score * @body.scan(word).size) # 1 point for every banned word
       add_score hits, "Banned character: #{word}"

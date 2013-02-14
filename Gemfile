@@ -5,4 +5,4 @@ gem 'bump'
 gem 'rake'
 gem 'redis'
 gem 'activesupport'
-gem 'system_timer'
+gem 'system_timer', :platform => :ruby_18

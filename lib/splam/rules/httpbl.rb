@@ -1,9 +1,14 @@
 require 'resolv'
-require 'system_timer'
-
 # Liberally copied from https://github.com/bpalmen/httpbl/blob/master/lib/httpbl.rb
 
 class Splam::Rules::Httpbl < Splam::Rule
+  if RUBY_VERSION < "1.9"
+    require 'system_timer'
+  else
+    require 'timeout'
+    SystemTimer = Timeout
+  end
+
 
   class << self
     attr_accessor :api_key
