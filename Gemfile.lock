@@ -1,0 +1,24 @@
+PATH
+  remote: .
+  specs:
+    splam (0.1.0)
+
+GEM
+  remote: http://rubygems.org/
+  specs:
+    activesupport (3.2.12)
+      i18n (~> 0.6)
+      multi_json (~> 1.0)
+    bump (0.3.9)
+    i18n (0.6.1)
+    multi_json (1.6.0)
+    rake (10.0.3)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  activesupport
+  bump
+  rake
+  splam!
