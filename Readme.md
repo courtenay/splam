@@ -42,8 +42,17 @@ site) whether to ban the post or not.
 
 We recommend showing the post to the user (spambox them in) but hide it from everyone else.
 
-TODO
+Dev
+===
 
+    bundle
+    redis-server
+    rake
+
+TODO
+====
+
+- fix on 1.9
 - Integrate bayesian or other clever algorithm, so that scores aren't hardcoded.
 - Switch to using a percentage (0.994) rather than a score (250)
 - Write more plugins!
