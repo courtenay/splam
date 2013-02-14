@@ -5,7 +5,9 @@ require 'system_timer'
 
 class Splam::Rules::Httpbl < Splam::Rule
 
-  cattr_accessor :api_key
+  class << self
+    attr_accessor :api_key
+  end
 
   def run
     return unless @request # no ip available
