@@ -1,6 +1,6 @@
 name = "splam"
 
-Gem::Specification.new name, "0.1.0" do |s|
+Gem::Specification.new name, "0.2.0" do |s|
   s.summary = "Run any kind of code in parallel processes"
   s.authors = ["ENTP"]
   s.email = "ENTP@example.com"
