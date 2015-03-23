@@ -1,8 +1,7 @@
 require 'resolv'
-require 'system_timer'
+require 'system_timer' if RUBY_VERSION =~ /^1.8/
 
 # Liberally copied from https://github.com/bpalmen/httpbl/blob/master/lib/httpbl.rb
-
 class Splam::Rules::Httpbl < Splam::Rule
 
   cattr_accessor :api_key
@@ -12,6 +11,7 @@ class Splam::Rules::Httpbl < Splam::Rule
     return unless @request[:remote_ip] # no ip available
     
     ip = @request[:remote_ip]
+    return if ip == "127.0.0.1"
     
     if result = self.class.check_blacklist(ip)
       add_score 250, "IP address (#{ip}) appears in ProjectHoneypot blacklist. (#{result.inspect})"

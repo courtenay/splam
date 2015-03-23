@@ -1,8 +1,13 @@
+# encoding: UTF-8
 class Splam::Ngram
+
+  def self.tokenize text
+    text.downcase.gsub("'", "").split(/[~^?!`"'#$\%&@(){}\[\]|*-\-+=_.,;:<>\/\\ \t\r\n\v\f]/)
+  end
 
   def self.trigram text
     # this won't be utf-8 happy. Oh well!
-    words = text.gsub("'", "").split(/\W/)
+    words = tokenize(text)
     hash = Hash.new 0
     i = 0
     while (i < words.length)
