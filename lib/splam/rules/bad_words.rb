@@ -43,7 +43,7 @@ class Splam::Rules::BadWords < Splam::Rule
     bad_words[:streaming]  = %w( watchmlbbaseball watchnhlhockey pspnsportstv.com )
 
     bad_words[:forum_spam] = ["IMG", "url="]
-    bad_words[:bamwar] = [/bam[ <>]*war[ <>]*com/]
+    bad_words[:bamwar] = [/bam[ <()>]*war[ <()>]*com/]
 
     suspicious_words =  %w( free buy galleries dating gallery hard hardcore video homemade celebrity ) << "credit card" << "my friend" << "friend sent me"
     suspicious_words |= %w( adult overnight free hot movie nylon arab ?????? seo generic live online)
