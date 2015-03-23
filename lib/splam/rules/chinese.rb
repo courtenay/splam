@@ -152,7 +152,7 @@ class Splam::Rules::Chinese < Splam::Rule
    [  0xFE30,  0xFE4F, "CJK Compatibility Forms" ],
 #   [  0xFE50,  0xFE6F, "Small Form Variants" ],
 #   [  0xFE70,  0xFEFF, "Arabic Presentation Forms-B" ],
-#   [  0xFF00,  0xFFEF, "Halfwidth and Fullwidth Forms" ],
+   [  0xFF00,  0xFFEF, "Halfwidth and Fullwidth Forms" ],
 #   [  0xFFF0,  0xFFFF, "Specials" ],
 #   [ 0x10000, 0x1007F, "Linear B Syllabary" ],
 #   [ 0x10080, 0x100FF, "Linear B Ideograms" ],
