@@ -1,15 +1,15 @@
+require 'uri'
 # This plugin checks for links in the text, and adds scores for having many links,
-# and 
 class Splam::Rules::Href < Splam::Rule
   
   def run
     # add_score 3 * @body.scan("href=http").size, "Shitty html 'href=http'" # 3 points for shitty html
-    add_score 35 * @body.scan(/href\=\s*http/).size, "Shitty html 'href=http'" # 15 points for shitty html
+    add_score 50 * @body.scan(/href\=\s*http/).size, "Shitty html 'href=http'" # 15 points for shitty html
     add_score 35 * @body.scan(/href\="\s+http/).size, "Shitty html 'href=\" http'" # 15 points for shitty html
     add_score 50 * @body.scan(/\A<a.*?<\/a>\Z/).size, "Single link post'"      # 50 points for shitty
 
-    link_count = @body.scan("http://").size
-    add_score 1 * link_count, "Matched 'http://'" # 1 point per link
+    link_count = @body.scan("http://").size + @body.scan("https://").size
+    add_score 1 * link_count, "Matched 'http[s]://'" # 1 point per link
     add_score 50, "More than 10 links" if link_count > 10  # more than 10 links? spam.
     add_score 100, "More than 20 links" if link_count > 20 # more than 20 links? definitely spam.
     add_score 1000, "More than 50 links" if link_count > 50 # more than 20 links? definitely spam.
@@ -29,31 +29,49 @@ class Splam::Rules::Href < Splam::Rule
     }
     suspicious_sites = {
       'cnn' => 10, # Honestly, who links to CNN?
-      'bbc' => 10
+      'bbc' => 10,
+      'ask' => 10,
+      'sharemyphotos' => 20,
+      'youtube' => 20,
+      'wordpress' => 20
     }
     
     tokens = @body.split(" ")
-    if tokens[-1] =~ /^http:\/\//
-      add_score 20, "Text ends in a http token"
-      add_score 150, "Text ends in a http token and only has one token" if link_count == 1
-      add_score 150, "Text ends in a http token with a shitty domain " if tokens[-1].match(/http:\/\/#{suspicious_sites.keys.join("|")}\./)
+    if tokens[-1] =~ /^https?:\/\//
+      add_score 10, "Text ends in a http token"
+      add_score 50, "Text ends in a http token and only has one token" if link_count == 1
     end
     
-    @body.scan(/http:\/\/(.*?)[\/\>\]?]/) do |match|
-      # $stderr.puts "checking #{match}"
-      if domain = match.to_s.split(".")
-        tld = domain[-1]
+    lines = body.split
+    if lines.size == 1 && lines[0] =~ /^https?[:]\/\//
+      add_score 50, "Text comprises only a link"
+    end
+    lines.each do |line|
+      line.split(" ").each_with_index do |token,i|
+        if token =~ /^https?[:]/
+        begin
+          uri = URI.parse(token)
+          
+          if !uri.host
+            add_score 25, "Bad domain? #{token}"
+          else
+            if found = suspicious_top_level_domains[uri.host.split(".")[-1]]
+              add_score found, "Suspicious top-level domain: '#{token}'"
+            end
 
-        if found = suspicious_top_level_domains[tld]
-          add_score found, "Suspicious top-level domain: '#{tld}'"
+            if found = suspicious_sites[uri.host.split(".")[-2]]
+              add_score found, "Suspicious hostname: '#{token}'"
+            end
+          end
+          if uri.path == "/"
+            add_score 15, "Link with no path part: #{token}"
+          end
+          
+        rescue URI::InvalidURIError
+          add_score 25, "Bad/unparseable URI: #{token}"
         end
-        
-        if found = suspicious_sites[domain[-2]]
-          add_score found, "Suspicious hostname: '#{domain[-2]}'"
-          add_score found * 5, "..document ends in suspicious hostname" if tokens[-1] =~ /^http:\/\//
-        end
-        
       end
+    end
     end
   end
 end

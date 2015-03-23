@@ -7,20 +7,16 @@ class NgramTest < Test::Unit::TestCase
   def setup
     @corpus = Splam::Ngram.new
 
-    # Will only try to stuff this into redis if it appears empty. Hacky, but works
-    if REDIS.hlen("spam") < 50
-      REDIS.expire "spam", 0
-      REDIS.expire "ham", 0
+    REDIS.del "ham"
+    REDIS.del "spam"
     
-      Dir.glob(File.join(File.dirname(__FILE__), "fixtures", "comment", "spam", "*.txt")).each do |f|
-        spam = File.open(f).read
-        @corpus.train spam, true
-      end
-      puts "loading ham"
-      Dir.glob(File.join(File.dirname(__FILE__), "fixtures", "comment", "ham", "*.txt")).each do |f|
-        ham = File.open(f).read
-        @corpus.train ham, false
-      end
+    Dir.glob(File.join(File.dirname(__FILE__), "fixtures", "comment", "spam", "*.txt")).each do |f|
+      spam = File.open(f).read
+      @corpus.train spam, true
+    end
+    Dir.glob(File.join(File.dirname(__FILE__), "fixtures", "comment", "ham", "*.txt")).each do |f|
+      ham = File.open(f).read
+      @corpus.train ham, false
     end
   end
   

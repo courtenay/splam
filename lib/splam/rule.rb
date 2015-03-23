@@ -32,7 +32,6 @@ class Splam::Rule
 
   def initialize(suite, record, weight = 1.0, request = nil)
     @suite, @weight, @score, @reasons, @body, @request = suite, weight, 0, [], record.send(suite.body), request
-    @user = record.user # todo: customize user field
   end
   
   def name
