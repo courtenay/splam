@@ -6,6 +6,7 @@ class Splam::Rules::Bbcode < Splam::Rule
     add_score 80 * @body.scan(/\n\[url.*?\]\n/).size, "Shitty bbcode url covers entire line"
     add_score 40 * @body.scan("[url=").size, "URL" # no URLS for you!!
     add_score 40 * @body.scan("[URL=").size, "URL" # no URLS for you!!
+    add_score 40 * @body.scan("[IMG").size, "IMG"
     add_score 45 * @body.scan("[url=http").size, "Shitty URL/html" # another 10 points for shitty bbcode html
     add_score 45 * @body.scan("[URL=http").size, "Shitty URL/html" # another 10 points for shitty bbcode html
     add_score 30 * @body.scan("[/CODE").size, "Forum codes?"
