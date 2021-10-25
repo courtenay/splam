@@ -1,5 +1,5 @@
 require File.join(File.dirname(__FILE__), 'test_helper')
-require 'activesupport'
+require 'active_support'
 
 class SplamTest < Test::Unit::TestCase
   class FixedRule < Splam::Rule
@@ -91,15 +91,15 @@ class SplamTest < Test::Unit::TestCase
       # some spam have a lower threshold denoted by their filename
       # trickier to detect
       if f =~ /\/(\d+)_.*\.txt/
-        Foo.splam_suite.threshold = $1.to_i
+        Foo.splam_suites[0].threshold = $1.to_i
       else
-        Foo.splam_suite.threshold = 180
+        Foo.splam_suites[0].threshold = 180
       end
       spam  = comment.splam?
       score = comment.splam_score
       #$stderr.puts "#{f} score: #{score}\n#{comment.splam_reasons.inspect}"
       #$stderr.puts "====================="
-      assert spam, "Comment #{f} was not spam, score was #{score} but threshold was #{Foo.splam_suite.threshold}\nReasons were #{comment.splam_reasons.inspect}"
+      assert spam, "Comment #{f} was not spam, score was #{score} but threshold was #{Foo.splam_suites[0].threshold}\nReasons were #{comment.splam_reasons.inspect}"
     end
   end
   
@@ -112,7 +112,7 @@ class SplamTest < Test::Unit::TestCase
       #$stderr.puts "#{f} score: #{score}"
       #$stderr.puts "====================="
       
-      assert !spam, "File #{f} should be marked ham < #{Foo.splam_suite.threshold}, but was marked with score #{score}\nReasons were #{comment.splam_reasons.inspect}\n\n#{comment.body}"
+      assert !spam, "File #{f} should be marked ham < #{Foo.splam_suites[0].threshold}, but was marked with score #{score}\nReasons were #{comment.splam_reasons.inspect}\n\n#{comment.body}"
     end
   end
 

@@ -1,18 +1,24 @@
 # Splam
-#require File.dirname(__FILE__) + "/splam/rule"
-#require File.dirname(__FILE__) + "/splam/rules"
-#require File.dirname(__FILE__) + "/splam/rules/russian"
+module Splam
+end
 
 require 'rubygems'
 gem 'activesupport'
 require 'active_support/inflector'
+
+require File.dirname(__FILE__) + "/splam/rule"
+require File.dirname(__FILE__) + "/splam/rules"
+require File.dirname(__FILE__) + "/splam/rules/russian"
+
 
 module Splam
   class Suite < Struct.new(:body, :rules, :threshold, :conditions)
     # Should be a Rack::Request, in case you want to inspect user agents and whatnot
     # unimplemented, cry about it fanboy!
     attr_accessor :request
-
+    
+    # struct
+    # attr_reader :body
     attr_reader :score
     attr_reader :reasons
 
@@ -41,6 +47,8 @@ module Splam
     end
 
     def splam?(score)
+      raise "No threshold" if threshold.nil?
+      raise "No score?"    if score.nil?
       score >= threshold
     end
   end
@@ -51,12 +59,12 @@ module Splam
     Dir["#{File.dirname(__FILE__)}/splam/rules/*.rb"].each do |f|
       require f
     end
-    require "splam/ngram"
+    require_relative "splam/ngram"
     base.send :extend, ClassMethods
   end
   
   module ClassMethods
-    def splam_suite; @splam_suite; end
+    def splam_suites; @splam_suites; end
     # Set #body attribute as splammable with default threshold of 100
     #   splammable :body
     # 
@@ -84,8 +92,14 @@ module Splam
       #  e.g. splammable :body, 100, [ :chinese, :html ]
       # todo: define some weighting on the model level
       #  e.g. splammable :body, 50, { :russian => 2.0 }
-      @splam_suite = Suite.new(fieldname, Splam::Rule.default_rules, threshold, conditions, &block)
+      @splam_suites ||= []
+      @splam_suites << Suite.new(fieldname, Splam::Rule.default_rules, threshold, conditions, &block)
     end
+
+    def validates_as_splam
+      # errors.add(self.class.splam_suite.body, "looks like spam.") if (!skip_splam_check? && splam?)
+    end
+  
   end
 
   attr_accessor :skip_splam_check
@@ -95,27 +109,48 @@ module Splam
     @splam_score || run_splam_suite(:score) || 0
   end
 
+  def splam_scores
+    @splam_scores
+  end
+
   def splam_reasons
     @splam_reasons || run_splam_suite(:reasons) || []
   end
 
-  def splam?
-    # run_splam_suite # ask yourself, do you want this to be cached for each record instance or not?
-    self.class.splam_suite.splam?(splam_score)
-  end
-
-  def validates_as_spam
-    errors.add(self.class.splam_suite.body, "looks like spam.") if (!skip_splam_check? && splam?)
+  def splam?(fieldname = nil)
+    scores = run_splam_suite(:scores) # ask yourself, do you want this to be cached for each record instance or not?
+    if fieldname
+      score = scores[fieldname]
+      return false if score.nil?
+      return self.class.splam_suites.any? { |ss|
+        ss.body == fieldname && ss.splam?(score)
+      }
+    else
+      score = scores.sum {|k,v| v.to_i }
+      self.class.splam_suites.any? { |ss|
+        ss.splam?(scores[ss.body])
+      }
+    end
   end
 
 protected
   def run_splam_suite(attr_suffix = nil)
-    splam_suite = self.class.splam_suite || raise("Splam::Suite is not initialized")
-    return false if (splam_suite.conditions && !splam_suite.conditions.call(self)) || 
-                    skip_splam_check ||
-                    send(splam_suite.body).nil?
-    @request = splam_suite.request.call(self) if splam_suite.request
-    @splam_score, @splam_reasons = splam_suite.run(self, @request)
+    splam_suites = self.class.splam_suites || raise("Splam::Suite is not initialized")
+    return false if splam_suites.empty?
+
+    @splam_score, @splam_reasons, @splam_scores = 0, {}, {}
+    splam_suites.each do |splam_suite|
+      next if splam_suite.conditions && splam_suite.conditions.call(self) == false
+      next if skip_splam_check
+      next if send(splam_suite.body).nil?
+
+      @request = splam_suite.request.call(self) if splam_suite.request
+      score, reasons  = splam_suite.run(self, @request)
+      @splam_score   += score
+      @splam_reasons[splam_suite.body] ||= []
+      @splam_reasons[splam_suite.body] |= reasons
+      @splam_scores[splam_suite.body] = score
+    end
     instance_variable_get("@splam_#{attr_suffix}") if attr_suffix
   end
   
