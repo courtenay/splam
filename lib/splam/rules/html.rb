@@ -8,5 +8,14 @@ class Splam::Rules::Html < Splam::Rule
     add_score 5 * @body.scan(/<a[^>]*><b>/).size, "<b> inside an <a>"
     
     add_score(200, "Entire body is an HTML tag") if @body.strip =~ /\A[<][^>]*[>]\Z/
+
+    # html comment: /* word word word=\nword word word=\nword word */
+    # with > 50 words, to make the body look longer
+    if @body =~ /(\/[*]\s+([[:word:]=]{5,}\s+){50,})[*]\//
+      add_score 200, "Lots of long words in html comment, no punctuation"
+    end
+    if @body =~ /(target[=]\"([[:word:]=]{4,}\s+){3,})/
+      add_score 200, "Lots of words in 'target' link attribute"
+    end
   end
 end
