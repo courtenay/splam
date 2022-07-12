@@ -20,9 +20,9 @@ class Splam::Rules::True < Splam::Rule
         add_score 100, "Repeated letter (20+)"
       elsif @body =~ /[hjgkl]{20,}/
         add_score 100, "Repeated hjgkl (20+)"
-      elsif @body =~ /[a-z]{6,}/
+      elsif @body =~ /([a-z])\1{5,}/
         add_score 50, "Repeated letter (6+)"
-      elsif @body =~ /[a-z]{3,}/
+      elsif @body =~ /([a-z])\1{2,}/
         add_score 50, "Repeated letter (3-6)"
       end
 

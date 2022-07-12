@@ -7,7 +7,7 @@ class Splam::Rules::Href < Splam::Rule
     add_score 50 * @body.scan(/href\=\s*http/).size, "Shitty html 'href=http'" # 15 points for shitty html
     add_score 35 * @body.scan(/href\="\s+http/).size, "Shitty html 'href=\" http'" # 15 points for shitty html
     add_score 50 * @body.scan(/\A<a.*?<\/a>\Z/).size, "Single link post'"      # 50 points for shitty
-    add_score 50 * @body.scan(/<a.*?<\/a>\Z/).size,   "Trailing html A post"
+    add_score 50 * @body.scan(/<a.*?<\/a>\Z/).size,   "Trailing html A post "
 
     link_count = @body.scan("http://").size + @body.scan("https://").size
     add_score 1 * link_count, "Matched 'http[s]://'" # 1 point per link
@@ -56,17 +56,17 @@ class Splam::Rules::Href < Splam::Rule
     }
     
     tokens = @body.split(/[<>\s]+/)
-    if tokens[-1] =~ /^https?:\/\//
-      add_score 10, "Text ends in a http token"
-      add_score 50, "Text ends in a http token and only has one token" if link_count == 1
-    elsif tokens[-1] =~ /\Shttps?:\/\//
-      add_score 40, "Text ends in a token containing http token"
-    end
-    if tokens.all? {|t| t =~ /^https?[:]\/\// }
-      add_score 50, "Text is just http tokens with no words" 
-    end
-    if tokens.size > 2 && tokens.uniq.size == 1
-      add_score 50, "3+ Duplicated http links"
+    if tokens.any?
+      if tokens[-1] =~ /^https?:\/\//
+        add_score 10, "Text ends in a http token"
+        add_score 50, "Text ends in a http token and only has one token" if link_count == 1
+        add_score 50, "Text is only a http token" if tokens.size == 1
+      elsif tokens[-1] =~ /\Shttps?:\/\//
+        add_score 40, "Text ends in a token containing http token. Weird but OK."
+      end      
+      if tokens.size > 2 && tokens.uniq.size == 1
+        add_score 50, "3+ Duplicated http links"
+      end
     end
 
     lines = body.split

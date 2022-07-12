@@ -4,7 +4,7 @@ class Splam::Rules::BadWords < Splam::Rule
     attr_accessor :bad_word_score, :suspicious_word_score
   end
   
-  self.bad_word_score       = 10
+  self.bad_word_score       = 15
   self.suspicious_word_score = 4
 
   def run
@@ -36,7 +36,7 @@ class Splam::Rules::BadWords < Splam::Rule
     bad_words[:leadgen] = ["lead generation", "agile marketing", "marketing solutions", "please reply with STOP"]
 
     bad_words[:sms] = ["send free sms"]
-    bad_words[:keto] = ["keto", "ketosis", "ketosis advanced", "keto diet", "keto burning"]
+    bad_words[:keto] = ["keto", "ketosis", "ketosis advanced", "keto diet", "keto burning", "diet", "pills", "bhb"]
 
     # linkspammers
     bad_words[:linkspam] = ["increase traffic", "discovered your blog", "backlinks", "sent me a link", "more visitors to my site", "targeted traffic", "increase traffic to your website", "estore"]
@@ -79,7 +79,7 @@ class Splam::Rules::BadWords < Splam::Rule
     bad_words[:handbags] = %w( karenmillen michaelkors kors millen bags handbag chanel outlet tasche longchamp kaufen louboutin christianlouboutin)
     bad_words[:blingspam] = %w( tiffany jewellery tiffanyco clearance outlet)
 
-    bad_words[:drugz] = %w(cbd hemp cannabis)
+    bad_words[:drugz] = %w(cbd hemp cannabis gummies)
     bad_words[:diet] = ["nutritional information", "diet pills", "weight loss", "potions", "breast enlargement", "enlargement pills"]
     bad_words[:uggspam]  = %w(\buggs?\b \buggboots\b clearance outlet)
     bad_words[:wedding]  = ["wedding", "wedding dress", "weddingdress", "strapless"]
@@ -107,6 +107,8 @@ class Splam::Rules::BadWords < Splam::Rule
     suspicious_words =  %w( free buy galleries dating gallery hard hardcore homemade celebrity ) << "credit card" << "my friend" << "friend sent me"
     suspicious_words |= %w( adult overnight free hot movie nylon arab ?????? seo generic live online)
     suspicious_words << "forums/member.php?u=" << "chat room" << "free chat" << "yahoo chat" << "page.php"
+
+    bad_words[:dumps] = %w( dumps okta )
 
 
     bad_words.each do |key,wordlist|
