@@ -9,6 +9,11 @@ class Splam::Rules::Html < Splam::Rule
     
     add_score(200, "Entire body is an HTML tag") if @body.strip =~ /\A[<][^>]*[>]\Z/
 
+    if @body.strip =~ /[<][^>]*[>]\Z/
+      add_score(100, "Body with a trailing link")
+      add_score(20, "Don't get too excited.") if @body.scan(/[!]/)
+    end
+
     # html comment: /* word word word=\nword word word=\nword word */
     # with > 50 words, to make the body look longer
     if @body =~ /(\/[*]\s+([[:word:]=]{5,}\s+){50,})[*]\//
