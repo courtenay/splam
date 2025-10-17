@@ -1,7 +1,16 @@
-source :rubygems
+source 'https://rubygems.org'
+
 gemspec
 
-gem 'bump'
-gem 'rake'
-gem 'redis' # optional, set up REDIS to point to your instance.
-gem 'system_timer', :platform => :ruby_18
+group :development do
+  gem 'bump'
+  gem 'rake', '~> 13.0'
+end
+
+group :test do
+  gem 'test-unit', '~> 3.6'
+end
+
+group :optional do
+  gem 'redis', '~> 5.0' # Optional: for Redis-based storage backend
+end
