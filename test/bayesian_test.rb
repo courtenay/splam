@@ -1,4 +1,4 @@
-require File.join(File.dirname(__FILE__), 'test_helper')
+require_relative 'test_helper'
 require 'active_support'
 
 class BayesianTest < Test::Unit::TestCase

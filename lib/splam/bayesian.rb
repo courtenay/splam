@@ -130,8 +130,8 @@ class Splam::Bayesian
       ham_probability: prob_ham,
       is_spam: prob_spam > DEFAULT_THRESHOLD,
       confidence: confidence,
-      spam_indicators: spam_indicators.sort_by { |i| -i[:ratio] }.first(5),
-      ham_indicators: ham_indicators.sort_by { |i| -i[:ratio] }.first(5),
+      spam_indicators: spam_indicators.sort_by { -_1[:ratio] }.first(5),
+      ham_indicators: ham_indicators.sort_by { -_1[:ratio] }.first(5),
       trigram_count: trigrams.size,
       unknown_trigrams: trigrams.count { |t, _|
         @storage.spam_trigram_count(t, @site_id).zero? &&
@@ -179,17 +179,17 @@ class Splam::Bayesian
     new(site_id: site_id, storage: storage)
   end
 
-  # Get classifier statistics
+  # Get classifier statistics (Ruby 3.1 hash shorthand)
   def stats
-    {
-      site_id: @site_id,
-      spam_docs: @storage.spam_doc_count(@site_id),
-      ham_docs: @storage.ham_doc_count(@site_id),
-      vocabulary_size: @storage.vocabulary_size(@site_id),
-      total_spam_trigrams: @storage.total_spam_trigrams(@site_id),
-      total_ham_trigrams: @storage.total_ham_trigrams(@site_id),
-      alpha: @alpha
-    }
+    site_id = @site_id
+    spam_docs = @storage.spam_doc_count(@site_id)
+    ham_docs = @storage.ham_doc_count(@site_id)
+    vocabulary_size = @storage.vocabulary_size(@site_id)
+    total_spam_trigrams = @storage.total_spam_trigrams(@site_id)
+    total_ham_trigrams = @storage.total_ham_trigrams(@site_id)
+    alpha = @alpha
+
+    { site_id:, spam_docs:, ham_docs:, vocabulary_size:, total_spam_trigrams:, total_ham_trigrams:, alpha: }
   end
 
   private
@@ -214,17 +214,10 @@ class Splam::Bayesian
       raise "Redis not available" unless @redis
     end
 
-    def spam_key(site_id = nil)
-      site_id ? "splam:spam:#{site_id}" : "splam:spam"
-    end
-
-    def ham_key(site_id = nil)
-      site_id ? "splam:ham:#{site_id}" : "splam:ham"
-    end
-
-    def meta_key(site_id = nil)
-      site_id ? "splam:meta:#{site_id}" : "splam:meta"
-    end
+    # Endless method definitions (Ruby 3.0+)
+    def spam_key(site_id = nil) = site_id ? "splam:spam:#{site_id}" : "splam:spam"
+    def ham_key(site_id = nil) = site_id ? "splam:ham:#{site_id}" : "splam:ham"
+    def meta_key(site_id = nil) = site_id ? "splam:meta:#{site_id}" : "splam:meta"
 
     def increment_spam(trigram, count, site_id = nil)
       @redis.hincrby(spam_key(site_id), trigram, count)
@@ -242,13 +235,8 @@ class Splam::Bayesian
       @redis.hincrby(ham_key(site_id), trigram, -count)
     end
 
-    def spam_trigram_count(trigram, site_id = nil)
-      @redis.hget(spam_key(site_id), trigram).to_i
-    end
-
-    def ham_trigram_count(trigram, site_id = nil)
-      @redis.hget(ham_key(site_id), trigram).to_i
-    end
+    def spam_trigram_count(trigram, site_id = nil) = @redis.hget(spam_key(site_id), trigram).to_i
+    def ham_trigram_count(trigram, site_id = nil) = @redis.hget(ham_key(site_id), trigram).to_i
 
     def increment_doc_count(is_spam, site_id = nil)
       field = is_spam ? "spam_docs" : "ham_docs"
