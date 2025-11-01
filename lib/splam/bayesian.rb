@@ -3,12 +3,15 @@
 # Enhanced Bayesian spam filter using trigram analysis
 # Implements proper Naive Bayes classification with Laplace smoothing
 #
+require_relative 'ngram'
+
 class Splam::Bayesian
   attr_reader :site_id, :storage
 
   # Laplace smoothing parameter (alpha)
   # Higher = more conservative (less sensitive to rare trigrams)
-  DEFAULT_ALPHA = 1.0
+  # Lower values (0.01-0.1) work better with unbalanced corpus sizes
+  DEFAULT_ALPHA = 0.01
 
   # Probability threshold for spam classification
   DEFAULT_THRESHOLD = 0.5
@@ -39,12 +42,25 @@ class Splam::Bayesian
     end
 
     # Update document counts
+    if retrain
+      @storage.decrement_doc_count(!is_spam, @site_id)
+    end
     @storage.increment_doc_count(is_spam, @site_id)
   end
 
   # Classify a document using Naive Bayes
   # @param text [String] the document to classify
-  # @return [Hash] classification result with probabilities and details
+  # @return [ClassificationResult] classification result with probabilities and details
+  #
+  # Example with pattern matching (Ruby 3.0+):
+  #   case classifier.classify(text)
+  #   in { is_spam: true, confidence: 0.8.. }
+  #     puts "High confidence spam!"
+  #   in { is_spam: true }
+  #     puts "Likely spam"
+  #   in { is_spam: false }
+  #     puts "Not spam"
+  #   end
   def classify(text)
     trigrams = Splam::Ngram.trigram(text)
 
@@ -130,8 +146,8 @@ class Splam::Bayesian
       ham_probability: prob_ham,
       is_spam: prob_spam > DEFAULT_THRESHOLD,
       confidence: confidence,
-      spam_indicators: spam_indicators.sort_by { |i| -i[:ratio] }.first(5),
-      ham_indicators: ham_indicators.sort_by { |i| -i[:ratio] }.first(5),
+      spam_indicators: spam_indicators.sort_by { -_1[:ratio] }.first(5),
+      ham_indicators: ham_indicators.sort_by { -_1[:ratio] }.first(5),
       trigram_count: trigrams.size,
       unknown_trigrams: trigrams.count { |t, _|
         @storage.spam_trigram_count(t, @site_id).zero? &&
@@ -144,6 +160,125 @@ class Splam::Bayesian
   def train_batch(documents)
     documents.each do |doc|
       train(doc[:text], is_spam: doc[:spam])
+    end
+  end
+
+  # Classify multiple documents in parallel using Ractors (Ruby 3.0+)
+  # @param texts [Array<String>] array of documents to classify
+  # @param workers [Integer] number of parallel workers (default: CPU count)
+  # @return [Array<Hash>] array of classification results
+  #
+  # Example:
+  #   texts = ["spam text 1", "ham text 2", "spam text 3"]
+  #   results = classifier.classify_parallel(texts)
+  #   results.each_with_index do |result, i|
+  #     puts "Text #{i}: #{result[:is_spam] ? 'SPAM' : 'HAM'}"
+  #   end
+  def classify_parallel(texts, workers: nil)
+    # Fall back to sequential if Ractor not available or single text
+    return texts.map { classify(_1) } if !defined?(Ractor) || texts.size == 1
+
+    workers ||= [Ractor.count, texts.size].min
+    workers = [workers, texts.size].min
+
+    # For HashStorage, we need to make the data ractor-safe
+    if @storage.is_a?(HashStorage)
+      # Serialize storage data for Ractor sharing
+      storage_data = {
+        spam_trigrams: @storage.spam_trigrams.dup,
+        ham_trigrams: @storage.ham_trigrams.dup,
+        spam_docs: @storage.spam_docs,
+        ham_docs: @storage.ham_docs,
+        alpha: @alpha
+      }
+
+      # Create Ractors to process batches
+      batch_size = (texts.size.to_f / workers).ceil
+      ractors = texts.each_slice(batch_size).map do |batch|
+        Ractor.new(batch, storage_data) do |texts_batch, data|
+          # Inline trigram extraction (can't use Ngram class due to global variable access)
+          def self.extract_trigrams(text)
+            # Use scan instead of split to avoid global variable access
+            words = text.downcase.gsub("'", "").scan(/[a-z0-9]+/)
+            hash = Hash.new(0)
+            i = 0
+            while (i < words.length)
+              tri = []
+              count = 0
+              while ((words.length > i + count) && (tri.length < 3))
+                word = words[i + count]
+                tri << words[i + count] if word && word != ""
+                count += 1
+              end
+              hash[tri.join(' ')] += 1 if tri.length == 3
+              i += 1
+            end
+            hash
+          end
+
+          # Simple classifier for parallel processing
+          texts_batch.map do |text|
+            trigrams = extract_trigrams(text)
+
+            if trigrams.empty?
+              {
+                spam_probability: 0.5,
+                ham_probability: 0.5,
+                is_spam: false,
+                confidence: 0.0
+              }
+            else
+              spam_docs = data[:spam_docs]
+              ham_docs = data[:ham_docs]
+              total_docs = spam_docs + ham_docs
+
+              prior_spam = spam_docs.to_f / total_docs
+              prior_ham = ham_docs.to_f / total_docs
+
+              log_prob_spam = Math.log(prior_spam)
+              log_prob_ham = Math.log(prior_ham)
+
+              vocab_size = (data[:spam_trigrams].keys + data[:ham_trigrams].keys).uniq.size
+              total_spam = data[:spam_trigrams].values.sum
+              total_ham = data[:ham_trigrams].values.sum
+              alpha = data[:alpha]
+
+              trigrams.each do |trigram, count|
+                next if trigram.nil? || trigram.strip.empty?
+
+                spam_count = data[:spam_trigrams][trigram] || 0
+                ham_count = data[:ham_trigrams][trigram] || 0
+
+                prob_spam = (spam_count + alpha) / (total_spam + alpha * vocab_size).to_f
+                prob_ham = (ham_count + alpha) / (total_ham + alpha * vocab_size).to_f
+
+                log_prob_spam += Math.log(prob_spam) * count
+                log_prob_ham += Math.log(prob_ham) * count
+              end
+
+              max_log = [log_prob_spam, log_prob_ham].max
+              exp_spam = Math.exp(log_prob_spam - max_log)
+              exp_ham = Math.exp(log_prob_ham - max_log)
+
+              prob_spam = exp_spam / (exp_spam + exp_ham)
+              prob_ham = exp_ham / (exp_spam + exp_ham)
+
+              {
+                spam_probability: prob_spam,
+                ham_probability: prob_ham,
+                is_spam: prob_spam > 0.5,
+                confidence: (prob_spam - 0.5).abs * 2
+              }
+            end
+          end
+        end
+      end
+
+      # Collect results from all Ractors
+      ractors.flat_map(&:take)
+    else
+      # Redis storage - not ractor-safe, fall back to sequential
+      texts.map { classify(_1) }
     end
   end
 
@@ -179,17 +314,17 @@ class Splam::Bayesian
     new(site_id: site_id, storage: storage)
   end
 
-  # Get classifier statistics
+  # Get classifier statistics (Ruby 3.1 hash shorthand)
   def stats
-    {
-      site_id: @site_id,
-      spam_docs: @storage.spam_doc_count(@site_id),
-      ham_docs: @storage.ham_doc_count(@site_id),
-      vocabulary_size: @storage.vocabulary_size(@site_id),
-      total_spam_trigrams: @storage.total_spam_trigrams(@site_id),
-      total_ham_trigrams: @storage.total_ham_trigrams(@site_id),
-      alpha: @alpha
-    }
+    site_id = @site_id
+    spam_docs = @storage.spam_doc_count(@site_id)
+    ham_docs = @storage.ham_doc_count(@site_id)
+    vocabulary_size = @storage.vocabulary_size(@site_id)
+    total_spam_trigrams = @storage.total_spam_trigrams(@site_id)
+    total_ham_trigrams = @storage.total_ham_trigrams(@site_id)
+    alpha = @alpha
+
+    { site_id:, spam_docs:, ham_docs:, vocabulary_size:, total_spam_trigrams:, total_ham_trigrams:, alpha: }
   end
 
   private
@@ -214,17 +349,10 @@ class Splam::Bayesian
       raise "Redis not available" unless @redis
     end
 
-    def spam_key(site_id = nil)
-      site_id ? "splam:spam:#{site_id}" : "splam:spam"
-    end
-
-    def ham_key(site_id = nil)
-      site_id ? "splam:ham:#{site_id}" : "splam:ham"
-    end
-
-    def meta_key(site_id = nil)
-      site_id ? "splam:meta:#{site_id}" : "splam:meta"
-    end
+    # Endless method definitions (Ruby 3.0+)
+    def spam_key(site_id = nil) = site_id ? "splam:spam:#{site_id}" : "splam:spam"
+    def ham_key(site_id = nil) = site_id ? "splam:ham:#{site_id}" : "splam:ham"
+    def meta_key(site_id = nil) = site_id ? "splam:meta:#{site_id}" : "splam:meta"
 
     def increment_spam(trigram, count, site_id = nil)
       @redis.hincrby(spam_key(site_id), trigram, count)
@@ -242,17 +370,17 @@ class Splam::Bayesian
       @redis.hincrby(ham_key(site_id), trigram, -count)
     end
 
-    def spam_trigram_count(trigram, site_id = nil)
-      @redis.hget(spam_key(site_id), trigram).to_i
-    end
-
-    def ham_trigram_count(trigram, site_id = nil)
-      @redis.hget(ham_key(site_id), trigram).to_i
-    end
+    def spam_trigram_count(trigram, site_id = nil) = @redis.hget(spam_key(site_id), trigram).to_i
+    def ham_trigram_count(trigram, site_id = nil) = @redis.hget(ham_key(site_id), trigram).to_i
 
     def increment_doc_count(is_spam, site_id = nil)
       field = is_spam ? "spam_docs" : "ham_docs"
       @redis.hincrby(meta_key(site_id), field, 1)
+    end
+
+    def decrement_doc_count(is_spam, site_id = nil)
+      field = is_spam ? "spam_docs" : "ham_docs"
+      @redis.hincrby(meta_key(site_id), field, -1)
     end
 
     def spam_doc_count(site_id = nil)
@@ -344,6 +472,16 @@ class Splam::Bayesian
 
     def increment_doc_count(is_spam, site_id = nil)
       is_spam ? @spam_docs += 1 : @ham_docs += 1
+    end
+
+    def decrement_doc_count(is_spam, site_id = nil)
+      if is_spam
+        @spam_docs -= 1
+        @spam_docs = 0 if @spam_docs < 0
+      else
+        @ham_docs -= 1
+        @ham_docs = 0 if @ham_docs < 0
+      end
     end
 
     def spam_doc_count(site_id = nil)

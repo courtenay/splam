@@ -1,0 +1,3 @@
+.bundle/
+vendor/bundle/
+test/fixtures/trained_classifier.dat
