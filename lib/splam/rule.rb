@@ -48,14 +48,14 @@ class Splam::Rule
   # document: the suite's Splam::Document, shared by its rules (made here when
   # a rule is run on its own)
   def initialize(suite, record, weight = 1.0, request = nil, document = nil)
-    @suite, @weight, @score, @reasons, @request = suite, weight, 0, [], request
+    @suite, @weight, @score, @reasons, @request, @record, @features = suite, weight, 0, [], request, record, {}
     @document = document || Splam::Document.new(record.send(suite.body))
     @body = @document.text
     # the record's user, for rules that inspect it (the :user_record feature); not every record has one
     @user = record.respond_to?(:user) ? record.user : nil
   end
 
-  attr_reader :document
+  attr_reader :document, :record, :features
   
   def name
     self.class.splam_key
@@ -85,6 +85,12 @@ class Splam::Rule
   def run
   end
   
+  # A named signal for a trained scorer (Splam::LinearScorer), next to the
+  # points: add_feature "copy.similarity", 0.93
+  def add_feature(name, value)
+    @features[name.to_s] = value
+  end
+
   def add_score(points, reason)
     @score ||= 0
     if points != 0

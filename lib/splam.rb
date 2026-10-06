@@ -10,6 +10,8 @@ require File.dirname(__FILE__) + "/splam/ngram"
 require File.dirname(__FILE__) + "/splam/document"
 require File.dirname(__FILE__) + "/splam/word_list"
 require File.dirname(__FILE__) + "/splam/text_model"
+require File.dirname(__FILE__) + "/splam/result"
+require File.dirname(__FILE__) + "/splam/linear_scorer"
 require File.dirname(__FILE__) + "/splam/rules"
 require File.dirname(__FILE__) + "/splam/rules/russian"
 
@@ -38,10 +40,12 @@ module Splam
       end
     end
 
-    # [total score, each rule's reasons, rule key => that rule's score]; the
-    # text is prepared once (Splam::Document) and shared by the rules
+    # [total score, each rule's reasons, rule key => that rule's score,
+    # features]; the text is prepared once (Splam::Document) and shared by the
+    # rules. Features are each rule's score ("rule.<key>") and what rules add
+    # with add_feature.
     def run(record, request)
-      score, reasons, rule_scores = 0, [], {}
+      score, reasons, rule_scores, features = 0, [], {}, {}
       document = Splam::Document.new(record.send(body))
       rules.each do |rule_class, weight|
         weight ||= 1
@@ -49,8 +53,10 @@ module Splam
         score   += worker.score
         reasons << worker.reasons
         rule_scores[rule_class.splam_key] = worker.score
+        features["rule.#{rule_class.splam_key}"] = worker.score
+        features.update(worker.features)
       end
-      [score, reasons, rule_scores]
+      [score, reasons, rule_scores, features]
     end
 
     # nil when the suite didn't run (conditions, skip, nil field): not spam
@@ -60,6 +66,24 @@ module Splam
       score >= threshold
     end
   end
+
+  # Checks text without a model class: the default rules (or :rules), an
+  # optional :request for the rules, :features to add (an app's extra
+  # features), and a :text_model whose log odds become "text.log_odds".
+  #   Splam.check("Buy cheap pills http://x.tk", :request => { :time => 1 }).score
+  def self.check(text, options = {})
+    record = CheckRecord.new(text.to_s, options[:user])
+    rules = options[:rules] || Splam::Rule.default_rules.select { |r| Splam.config.rule_enabled?(r) }
+    suite = Suite.new(:body, rules, options[:threshold] || 100, nil)
+    score, reasons, _, rule_features = suite.run(record, options[:request])
+    features = {}
+    rule_features.each { |name, value| features["body.#{name}"] = value }
+    (options[:features] || {}).each { |name, value| features[name.to_s] = value }
+    features["text.log_odds"] = options[:text_model].score(text)[:log_odds] if options[:text_model]
+    Splam::Result.new(score, reasons, features, [:body])
+  end
+
+  CheckRecord = Struct.new(:body, :user)
 
   def self.included(base)
     # Autoload all files in rules
@@ -133,6 +157,12 @@ module Splam
     @splam_reasons || run_splam_suite(:reasons) || []
   end
 
+  # A Splam::Result: the score, reasons, features, and the configured
+  # scorer's probability (Splam.config.scorer)
+  def splam_result
+    @splam_result || run_splam_suite(:result)
+  end
+
   # field => reasons, for each suite that ran
   def splam_reasons_by_field
     @splam_reasons_by_field || run_splam_suite(:reasons_by_field) || {}
@@ -159,22 +189,40 @@ protected
     return false if splam_suites.empty?
 
     @splam_score, @splam_reasons, @splam_reasons_by_field, @splam_scores, @splam_rule_scores = 0, [], {}, {}, {}
+    @splam_features, ran = {}, []
     splam_suites.each do |splam_suite|
       next if splam_suite.conditions && splam_suite.conditions.call(self) == false
       next if skip_splam_check
       next if send(splam_suite.body).nil?
 
       @request = splam_suite.request.call(self) if splam_suite.request
-      score, reasons, rule_scores = splam_suite.run(self, @request)
+      score, reasons, rule_scores, features = splam_suite.run(self, @request)
+      ran << splam_suite.body
+      features.each { |name, value| @splam_features["#{splam_suite.body}.#{name}"] = value }
       @splam_score   += score
       @splam_reasons |= reasons
       (@splam_reasons_by_field[splam_suite.body] ||= []).concat(reasons)
       @splam_scores[splam_suite.body] = score
       @splam_rule_scores[splam_suite.body] = rule_scores
     end
+    add_model_features(ran) unless ran.empty?
+    @splam_result = Splam::Result.new(@splam_score, @splam_reasons, @splam_features, ran)
     instance_variable_get("@splam_#{attr_suffix}") if attr_suffix
   end
   
+  # The app's features (Splam.config.extra_features) and the text model's
+  # log odds (Splam.config.text_model), once per record
+  def add_model_features(fields)
+    config = Splam.config
+    if config.extra_features
+      (config.extra_features.call(self) || {}).each { |name, value| @splam_features[name.to_s] = value }
+    end
+    if config.text_model && (model = config.text_model.call(self))
+      text = config.text_for ? config.text_for.call(self) : fields.map { |f| send(f).to_s }.join("\n")
+      @splam_features["text.log_odds"] = model.score(text)[:log_odds]
+    end
+  end
+
   def skip_splam_check?
     # This enables us to use a checkbox
     skip_splam_check.to_i > 0
