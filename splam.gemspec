@@ -5,7 +5,7 @@ Gem::Specification.new name, "0.5.0" do |s|
   s.authors = ["ENTP"]
   s.email = "courtenay@entp.com"
   s.homepage = "http://github.com/courtenay/splam"
-  s.files = Dir["lib/**/*.rb", "README", "MIT-LICENSE", "CHANGELOG.md"]
+  s.files = Dir["lib/**/*.rb", "data/**/*.txt", "README", "MIT-LICENSE", "CHANGELOG.md"]
   s.license = "MIT"
   s.required_ruby_version = ">= 2.2"
   s.add_runtime_dependency "addressable"

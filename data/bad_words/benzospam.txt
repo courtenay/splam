@@ -1,0 +1,6 @@
+# One entry per line: a word or phrase (case-insensitive; a regex fragment,
+# matched whole where it starts or ends with a word character), or re:/regex/flags.
+ultram
+tramadol
+pharmacy
+prescription

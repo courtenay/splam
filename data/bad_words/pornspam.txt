@@ -1,0 +1,30 @@
+# One entry per line: a word or phrase (case-insensitive; a regex fragment,
+# matched whole where it starts or ends with a word character), or re:/regex/flags.
+sex
+sexy
+porn
+gay
+erotica
+erotico
+topless
+naked
+viagra
+erotismo
+porno
+lesbian
+amateur
+tit\b
+gratis
+torrent
+bittorrent
+adulto
+videochat
+3dsex
+re:/pel?cula/
+re:/pornogr?fica/
+re:/er[o0]tic[oa]?/
+re:/er[0o]tismo/
+portal porno
+webcam
+free-web-host
+rapidshare

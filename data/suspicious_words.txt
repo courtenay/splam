@@ -1,0 +1,29 @@
+# Literal strings, matched as written (case-sensitive) anywhere in the text.
+free
+buy
+galleries
+dating
+gallery
+hard
+hardcore
+homemade
+celebrity
+credit card
+my friend
+friend sent me
+adult
+overnight
+hot
+movie
+nylon
+arab
+??????
+seo
+generic
+live
+online
+forums/member.php?u=
+chat room
+free chat
+yahoo chat
+page.php

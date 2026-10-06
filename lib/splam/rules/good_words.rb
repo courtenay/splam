@@ -1,23 +1,18 @@
 class Splam::Rules::GoodWords < Splam::Rule
-  
-  def run
-    good_words = [ /I\'having a problem/, ]
-    good_words |= %w( lighthouse activereload  warehouse install eclipse settings assigned user ticket tickets token api number query request)
-    good_words |= %w( browser feed firefox safari skitch vendor rails action_controller railties )
-    good_words |= %w( redirect login diff dreamhost setup subversion git  wildcard domain subdomain ssh database )
-    good_words |= %w( project billing tags description comment milestone saving happening feature mac implement report)
-    good_words |= %w( rss notification subscribe calendar chart note task gantt search service ownership application communicate )
-    good_words |= %w( pattern template web integer status xml activereload html state page)
-    good_words |= %w( interaction )
-    good_words << "project management"
-    good_words << "/usr/local/lib" << "gems"
 
+  # data/good_words.txt, compiled once: a Regexp as given; a word or phrase
+  # must match whole (before 0.5 this scanned the string "\b#{word}\b", whose
+  # \b are backspaces, so it never matched)
+  def self.patterns
+    @patterns ||= Splam::WordList.read("good_words.txt").map do |word|
+      [word, word.is_a?(Regexp) ? word : /(?<![[:word:]])#{Regexp.escape(word)}(?![[:word:]])/]
+    end
+  end
+
+  def run
     body = @document.downcased
-    good_words.each { |rule|
-      # a Regexp as given; a word must match whole (this scanned the string
-      # "\b#{rule}\b", whose \b are backspaces, so it never matched before 0.5)
-      pattern = rule.is_a?(Regexp) ? rule : /(?<![[:word:]])#{Regexp.escape(rule)}(?![[:word:]])/
-      add_score -5 * body.scan(pattern).size, "relevant word match: #{rule}"
-    }
+    self.class.patterns.each do |word, pattern|
+      add_score -5 * body.scan(pattern).size, "relevant word match: #{word}"
+    end
   end
 end

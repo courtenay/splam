@@ -1,0 +1,5 @@
+# One entry per line: a word or phrase (case-insensitive; a regex fragment,
+# matched whole where it starts or ends with a word character), or re:/regex/flags.
+re:/(s[ℰⅇe]xy\s+|[ℂc]a[lℓℒ][lℓℒ]\s+)?[Gg][ℐi][rℜℝℛ][lℓℒ]s?/i
+re:/[Eℰⅇℯe][Ss][ℭℂc][0ℴo][ℜℝℛr.][풕Tt]s?/i
+re:/[+0]?971[ -]?557[ -]?928[ -]?406/
