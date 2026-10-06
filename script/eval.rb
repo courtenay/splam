@@ -39,7 +39,9 @@ body_rules = Splam::Rule.default_rules.reject { |r| excluded.include?(r.splam_ke
 body_rules = body_rules.select { |r| Splam.config.rule_enabled?(r) } if Splam.respond_to?(:config)
 title_rules = [:chinese, :bad_words, :href].reject { |k| excluded.include?(k) }
 EvalRecord.splammable(:body, opts[:threshold]) { |s| s.rules = body_rules }
-EvalRecord.splammable(:title, opts[:threshold], lambda { |r| r.first? }) { |s| s.rules = title_rules }
+# no title suite without a title: in labelled sets built after spam was purged
+# the title is often missing, which isn't what the app sees
+EvalRecord.splammable(:title, opts[:threshold], lambda { |r| r.first? && !r.title.to_s.strip.empty? }) { |s| s.rules = title_rules }
 
 rows = []
 t0 = Time.now
