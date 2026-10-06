@@ -8,6 +8,16 @@ class Splam::Rules::BadWords < Splam::Rule
     def bad_word_score
       @bad_word_score || Splam.config.bad_word_score
     end
+
+    # A list entry (a regex fragment) as a case-insensitive Regexp, with \b on
+    # each side that is a word character. Before 0.4 both sides always got \b,
+    # so entries starting or ending in punctuation ("dear,", "<<<91") could
+    # never match; every entry still matches what it matched then.
+    def word_regex(word)
+      lead = word =~ /\A[[:word:]]/ ? "\\b" : ""
+      trail = word =~ /[[:word:]]\z/ ? "\\b" : ""
+      Regexp.new("#{lead}(#{word})#{trail}", "i")
+    end
   end
 
   self.suspicious_word_score = 4
@@ -68,8 +78,8 @@ class Splam::Rules::BadWords < Splam::Rule
       "Microsoft Office 365 Technical Support", "gmail support", "helpline number",
       "MYOB support", "microsoftoutlookoffice", "emailonline", "onlinesupport",
       "customercarenumber", "support-australia", "norton360-support",
-      /(Mac|Amazon|Amazon Prime|Norton Antivirus 360|AVG|garmin|Microsoft|Yahoo|Icloud|Kapersky Antivirus) (Tech Support|Support|Help|Customer Service|Customer Support) (Phone )?Number/,
-      /Support Number [+]1[-]844/,
+      /(Mac|Amazon|Amazon Prime|Norton Antivirus 360|AVG|garmin|Microsoft|Yahoo|Icloud|Kapersky Antivirus) (Tech Support|Support|Help|Customer Service|Customer Support) (Phone )?Number/i,
+      /Support Number [+]1[-]844/i,
       "353-12544725",
 
       "Chrome Customer Care", "helpline number",
@@ -134,7 +144,7 @@ class Splam::Rules::BadWords < Splam::Rule
     bad_words.each do |key,wordlist|
       counter = 0
       wordlist.each do |word|
-        regex = word.is_a?(Regexp) ? word : Regexp.new("\\b(#{word})\\b","i")
+        regex = word.is_a?(Regexp) ? word : self.class.word_regex(word)
         # /love .*?solution/ is quadratic on a line of "love ", so it's
         # matched as the pair of strings everywhere
         pair = ["love ", "solution"] if word.equal?(LOVE_SOLUTION)
