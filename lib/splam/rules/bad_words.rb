@@ -1,16 +1,29 @@
 # encoding: UTF-8
 class Splam::Rules::BadWords < Splam::Rule
   class << self
-    attr_accessor :bad_word_score, :suspicious_word_score
+    attr_writer :bad_word_score
+    attr_accessor :suspicious_word_score
+
+    # set here to override Splam.config (10 by default, 15 in the :lighthouse profile)
+    def bad_word_score
+      @bad_word_score || Splam.config.bad_word_score
+    end
   end
-  
-  self.bad_word_score       = 15
+
   self.suspicious_word_score = 4
+
+  # scanned with Splam::LinearScan.lazy_pairs (quadratic as a regex)
+  LOVE_SOLUTION = /love .*?solution/
 
   def run
     bad_words = {}
     bad_words[:pornspam] = %w( sex sexy porn gay erotica erotico topless naked viagra erotismo porno porn lesbian amateur tit\b)
-    bad_words[:pornspam] |= %w( gratis erotismo porno torrent bittorrent adulto videochat  video 3dsex)
+    lighthouse = Splam.config.feature?(:lighthouse_words)
+    if lighthouse
+      bad_words[:pornspam] |= %w( gratis erotismo porno torrent bittorrent adulto videochat  video 3dsex)
+    else
+      bad_words[:pornspam] |= %w( gratis erotismo porno torrent bittorrent adulto videochat 3dsex)
+    end
     bad_words[:pornspam] << /pel?cula/ << /pornogr?fica/ << /er[o0]tic[oa]?/ << /er[0o]tismo/ << "portal porno" # srsly, spamming in spanish?
     bad_words[:pornspam] |= %w( webcam  free-web-host rapidshare)
     
@@ -36,7 +49,8 @@ class Splam::Rules::BadWords < Splam::Rule
     bad_words[:leadgen] = ["lead generation", "agile marketing", "marketing solutions", "please reply with STOP"]
 
     bad_words[:sms] = ["send free sms"]
-    bad_words[:keto] = ["keto", "ketosis", "ketosis advanced", "keto diet", "keto burning", "diet", "pills", "bhb"]
+    bad_words[:keto] = ["keto", "ketosis", "ketosis advanced", "keto diet", "keto burning"]
+    bad_words[:keto] += ["diet", "pills", "bhb"] if lighthouse
 
     # linkspammers
     bad_words[:linkspam] = ["increase traffic", "discovered your blog", "backlinks", "sent me a link", "more visitors to my site", "targeted traffic", "increase traffic to your website", "estore"]
@@ -79,58 +93,67 @@ class Splam::Rules::BadWords < Splam::Rule
     bad_words[:handbags] = %w( karenmillen michaelkors kors millen bags handbag chanel outlet tasche longchamp kaufen louboutin christianlouboutin)
     bad_words[:blingspam] = %w( tiffany jewellery tiffanyco clearance outlet)
 
-    bad_words[:drugz] = %w(cbd hemp cannabis gummies)
+    bad_words[:drugz] = %w(cbd hemp cannabis)
+    bad_words[:drugz] << "gummies" if lighthouse
     bad_words[:diet] = ["nutritional information", "diet pills", "weight loss", "potions", "breast enlargement", "enlargement pills"]
     bad_words[:uggspam]  = %w(\buggs?\b \buggboots\b clearance outlet)
     bad_words[:wedding]  = ["wedding", "wedding dress", "weddingdress", "strapless"]
 
-    bad_words[:shoes] = ["Nike free", "Air max", "Valentino shoes", "Free run", "Nike", "Lebron James"]
-    bad_words[:mover] = ["Shifting", "Packing", "movers", "bangalore"]
     bad_words[:hellofriend] = ["hello friend", "I found some new stuff", "dear,", "that might be useful for you"]
 
     bad_words[:webcamspam] = %w( girls webcam adult singles) << /chat room(s?)/
     bad_words[:gamereview] = %w( games-review-it.com game-reviews-online.com )
     bad_words[:streaming]  = %w( watchmlbbaseball watchnhlhockey pspnsportstv.com )
 
-    bad_words[:lh]   =%w( coupon free buy galleries dating gallery hard hardcore video homemade celebrity ) << "credit card" << "my friend" << "friend sent me"
-    bad_words[:lh_2] = %w( adult pharmacy overnight shipping free hot movie nylon arab  xxx) << "sent me a link"
-    bad_words[:lh_3] = %w( usa jersey nfl classified classifieds disney furniture camera gifts.com mp5 ) << "flash drive"
-
-    bad_words[:forum_spam] = ["IMG", "url="]
-
     bad_words[:adblock] = %w(8107764125 9958091843 9783565359 vashikaran vashi karan vas hikarn vash ikaran punjab pondicherry kerala) << "voodoo" << "love marriage" << "love problem" <<
-      /\+91/ << "baba ji" << "babaji" << "<<<91" << "thailand" << /love .*?solution/ <<
+      /\+91/ << "baba ji" << "babaji" << "<<<91" << "thailand" << LOVE_SOLUTION <<
       "astrologer expert" << /black magi[ck]/ << /love spells?/ << /healing spells?/ << "ex wife"
 
     bad_words[:bamwar] = [/bam[ <()>]*war[ <()>]*com/]
+
+    if lighthouse
+      bad_words[:shoes] = ["Nike free", "Air max", "Valentino shoes", "Free run", "Nike", "Lebron James"]
+      bad_words[:mover] = ["Shifting", "Packing", "movers", "bangalore"]
+      bad_words[:lh]   = %w( coupon free buy galleries dating gallery hard hardcore video homemade celebrity ) << "credit card" << "my friend" << "friend sent me"
+      bad_words[:lh_2] = %w( adult pharmacy overnight shipping free hot movie nylon arab  xxx) << "sent me a link"
+      bad_words[:lh_3] = %w( usa jersey nfl classified classifieds disney furniture camera gifts.com mp5 ) << "flash drive"
+      bad_words[:forum_spam] = ["IMG", "url="]
+      bad_words[:dumps] = %w( dumps okta )
+    end
 
     suspicious_words =  %w( free buy galleries dating gallery hard hardcore homemade celebrity ) << "credit card" << "my friend" << "friend sent me"
     suspicious_words |= %w( adult overnight free hot movie nylon arab ?????? seo generic live online)
     suspicious_words << "forums/member.php?u=" << "chat room" << "free chat" << "yahoo chat" << "page.php"
 
-    bad_words[:dumps] = %w( dumps okta )
 
+    # The link scans are Splam::LinearScan's, found once: they were
+    # repeated for every matched word, each quadratic on "<a<a<a...".
+    body = @body.downcase
+    link_texts = link_attributes = raw_link_texts = nil
 
     bad_words.each do |key,wordlist|
       counter = 0
-      body = @body.downcase
       wordlist.each do |word|
         regex = word.is_a?(Regexp) ? word : Regexp.new("\\b(#{word})\\b","i")
-        results = body.scan(regex)
+        # /love .*?solution/ is quadratic on a line of "love ", so it's
+        # matched as the pair of strings everywhere
+        pair = ["love ", "solution"] if word.equal?(LOVE_SOLUTION)
+        count_in = lambda { |text| pair ? Splam::LinearScan.lazy_pairs(text, *pair).size : text.scan(word).size }
+        results = pair ? Splam::LinearScan.lazy_pairs(body, *pair) : body.scan(regex)
         if results && results.size > 0
           counter += 1
           multiplier = results.size
           multiplier = 5 if results.size > 5
           add_score((self.class.bad_word_score ** multiplier), "nasty word (#{multiplier}x): '#{word}'")
           # Add more points if the bad word is INSIDE a link
-          body.scan(/<a[^>]+>(.*?)<\/a>/).each do |match|
+          (link_texts ||= Splam::LinearScan.link_texts(body)).each do |match|
             add_score self.class.bad_word_score ** 4 * multiplier, "nasty word inside a link: #{word}"
           end
-          body.scan(/\bhttp:\/\/(.*?#{word})/).each do |match|
-            add_score self.class.bad_word_score ** 4 * match[0].scan(word).size, "nasty word inside a straight-up link: #{word}"
+          Splam::LinearScan.http_links_to(body, pair || word).each do |match|
+            add_score self.class.bad_word_score ** 4 * count_in.call(match[0]), "nasty word inside a straight-up link: #{word}"
           end
-          body.scan(/<a(.*?)>/).each do |match|
-            add_score self.class.bad_word_score ** 4 * match[0].scan(word).size, "nasty word inside a URL: #{word}"
+          (link_attributes ||= Splam::LinearScan.link_attributes(body)).each do |match|
+            add_score self.class.bad_word_score ** 4 * count_in.call(match[0]), "nasty word inside a URL: #{word}"
           end
         end
         if counter > (wordlist.size / 2)
@@ -139,11 +162,11 @@ class Splam::Rules::BadWords < Splam::Rule
       end
     end
     suspicious_words.each do |word|
-      results = body.scan(word)
+      results = @body.scan(word) # the original case: this was the #body reader, outside the block that lowercased it
       if results && results.size > 0
         add_score (self.class.suspicious_word_score * results.size), "suspicious word: #{word}"
         # Add more points if the bad word is INSIDE a link
-        @body.scan(/<a[^>]+>(.*?)<\/a>/).each do |match|
+        (raw_link_texts ||= Splam::LinearScan.link_texts(@body)).each do |match|
           add_score((self.class.suspicious_word_score * match[0].scan(word).size), "suspicious word inside a link: #{word}")
         end
       end

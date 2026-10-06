@@ -1,3 +1,4 @@
+# encoding: utf-8
 class Splam::Rules::Korean < Splam::Rule
 
   def run

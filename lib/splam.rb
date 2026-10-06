@@ -2,11 +2,10 @@
 module Splam
 end
 
-require 'rubygems'
-gem 'activesupport'
-require 'active_support/inflector'
 
+require File.dirname(__FILE__) + "/splam/config"
 require File.dirname(__FILE__) + "/splam/rule"
+require File.dirname(__FILE__) + "/splam/linear_scan"
 require File.dirname(__FILE__) + "/splam/rules"
 require File.dirname(__FILE__) + "/splam/rules/russian"
 
@@ -27,7 +26,7 @@ module Splam
       block.call(self) if block
       self.rules = self.rules.inject({}) do |memo, (rule, weight)|
         if (rule.is_a?(Class) && rule.superclass == Splam::Rule) || rule = Splam::Rule.rules[rule]
-          memo[rule] = weight || 1.0
+          memo[rule] = weight || Splam.config.weight_for(rule) || 1.0
         else
           raise ArgumentError, "Invalid rule: #{rule.inspect}"
         end
@@ -46,9 +45,10 @@ module Splam
       [score, reasons]
     end
 
+    # nil when the suite didn't run (conditions, skip, nil field): not spam
     def splam?(score)
       raise "No threshold" if threshold.nil?
-      raise "No score?"    if score.nil?
+      return false if score.nil?
       score >= threshold
     end
   end
@@ -93,7 +93,10 @@ module Splam
       # todo: define some weighting on the model level
       #  e.g. splammable :body, 50, { :russian => 2.0 }
       @splam_suites ||= []
-      @splam_suites << Suite.new(fieldname, Splam::Rule.default_rules, threshold, conditions, &block)
+      # opt-in rules (Rule.opt_in?) only when the configured profile enables them;
+      # a block that sets s.rules can still name them
+      rules = Splam::Rule.default_rules.select { |r| Splam.config.rule_enabled?(r) }
+      @splam_suites << Suite.new(fieldname, rules, threshold, conditions, &block)
     end
 
     def validates_as_splam
@@ -103,18 +106,24 @@ module Splam
   end
 
   attr_accessor :skip_splam_check
-  attr_reader   :splam_score, :splam_reasons
 
   def splam_score
     @splam_score || run_splam_suite(:score) || 0
   end
 
+  # field => score, for each suite that ran
   def splam_scores
-    @splam_scores
+    @splam_scores || run_splam_suite(:scores) || {}
   end
 
+  # every suite's reasons, one array per rule
   def splam_reasons
     @splam_reasons || run_splam_suite(:reasons) || []
+  end
+
+  # field => reasons, for each suite that ran
+  def splam_reasons_by_field
+    @splam_reasons_by_field || run_splam_suite(:reasons_by_field) || {}
   end
 
   def splam?(fieldname = nil)
@@ -126,7 +135,6 @@ module Splam
         ss.body == fieldname && ss.splam?(score)
       }
     else
-      score = scores.sum {|k,v| v.to_i }
       self.class.splam_suites.any? { |ss|
         ss.splam?(scores[ss.body])
       }
@@ -138,7 +146,7 @@ protected
     splam_suites = self.class.splam_suites || raise("Splam::Suite is not initialized")
     return false if splam_suites.empty?
 
-    @splam_score, @splam_reasons, @splam_scores = 0, {}, {}
+    @splam_score, @splam_reasons, @splam_reasons_by_field, @splam_scores = 0, [], {}, {}
     splam_suites.each do |splam_suite|
       next if splam_suite.conditions && splam_suite.conditions.call(self) == false
       next if skip_splam_check
@@ -147,8 +155,8 @@ protected
       @request = splam_suite.request.call(self) if splam_suite.request
       score, reasons  = splam_suite.run(self, @request)
       @splam_score   += score
-      @splam_reasons[splam_suite.body] ||= []
-      @splam_reasons[splam_suite.body] |= reasons
+      @splam_reasons |= reasons
+      (@splam_reasons_by_field[splam_suite.body] ||= []).concat(reasons)
       @splam_scores[splam_suite.body] = score
     end
     instance_variable_get("@splam_#{attr_suffix}") if attr_suffix

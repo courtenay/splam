@@ -1,0 +1,20 @@
+name: test
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        ruby: ['2.2', '2.6', '3.3']
+    services:
+      redis:
+        image: redis:7
+        ports: ['6379:6379']
+    steps:
+      - uses: actions/checkout@v4
+      # in the official image, run by hand: setup-ruby's 2.2 crashes on current
+      # runners, and ruby:2.2's glibc is too old for actions as a job container
+      - run: >
+          docker run --rm --network host -v "$PWD":/splam -w /splam ruby:${{ matrix.ruby }}
+          sh -c 'bundle install --jobs 4 && bundle exec rake test'

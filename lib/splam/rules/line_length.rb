@@ -1,4 +1,9 @@
 class Splam::Rules::LineLength < Splam::Rule
+  # opt-in: part of the :lighthouse profile
+  def self.opt_in?
+    true
+  end
+
   
   def name
     "Line length"

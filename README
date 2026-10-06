@@ -42,6 +42,66 @@ site) whether to ban the post or not.
 
 We recommend showing the post to the user (spambox them in) but hide it from everyone else.
 
+Configuration
+-------------
+
+Apps with different customers can score differently:
+
+    Splam.configure do |c|
+      c.profile = :lighthouse                       # a named preset (Splam::Config::PROFILES)
+      c.weights = { :bad_words => 0.5, :href => 2 } # rule weights, overriding the preset
+      c.bad_word_score = 12                         # BadWords' base score
+    end
+
+The default profile is Tender's tuning. The :lighthouse profile is the tuning
+of splam 0.3.0: more word genres, a bad-word base of 15, lower link-count
+thresholds, trailing-tag checks, the user-record checks, and the Fuzz and
+LineLength rules (opt-in rules, which only run when a profile or a suite names
+them). A suite that names its own weights keeps them.
+
+Results per field:
+
+    comment.splam_scores            # => { :body => 120, :title => 0 }
+    comment.splam?(:body)           # that field against its suite's threshold
+    comment.splam_reasons_by_field  # => { :body => [...], :title => [...] }
+
+Your own rules
+--------------
+
+Subclass Splam::Rule and it joins the default rules (or name it in a suite).
+Rules can read the request your model passes in:
+
+    class PasteCheck < Splam::Rule
+      def run
+        return unless @request && @request[:time]
+        add_score 300, "Submitted within 2 seconds" if @request[:time] < 2
+      end
+    end
+
+    class Comment
+      include Splam
+      splammable :body, 250 do |s|
+        s.request = lambda { |comment| { :time => comment.seconds_on_form } }
+      end
+    end
+
+Mark a rule opt-in (def self.opt_in?; true; end) to keep it out of the
+defaults unless a profile enables it.
+
+Comparing versions
+------------------
+
+script/eval.rb scores a labelled JSONL file with whichever splam is on the
+load path and prints flag rates per slice and ROC AUC, so two versions or
+profiles can be compared on the same data. See the comment at its top.
+
+Tests
+-----
+
+    ruby -Ilib -Itest test/splam_test.rb   # or: rake test
+
+test/ngram_test.rb needs a Redis on localhost and is omitted without one.
+
 TODO
 
 - Integrate bayesian or other clever algorithm, so that scores aren't hardcoded.
