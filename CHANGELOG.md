@@ -25,6 +25,23 @@ both profiles (0 rows differ).
   the score yet. `script/eval_text_model.rb` trains and scores it offline: on
   Tender's labelled comments (train before 2023, test after) ROC AUC .944,
   average precision .897, against .641 / .462 for the rules.
+- Features, scores and the Linear scorer. Rules add named features next to
+  their points (`add_feature`); a model's `splam_result` (a `Splam::Result`) has
+  the score, reasons, features (`<field>.rule.<key>`, rule features, an app's
+  extra features, `text.log_odds`) and, with `Splam.config.scorer`, a
+  probability. `Splam::LinearScorer` is logistic regression over the features
+  from a JSON weights file. `Splam.check(text, ...)` does the same without a
+  model class. Hooks: `text_model`, `text_for`, `extra_features`,
+  `similar_texts`, `scorer`.
+- Copycat: with an app's `similar_texts` lookup, a near-copy of an earlier
+  text by someone else adds `copy.similarity`, `copy.added_links` and
+  `copy.trailing_link` (features only, no points).
+- `script/train_linear.rb` trains weights offline. On Tender's labelled
+  comments (rules, Tender's request signals and the text model; test after
+  2023) ROC AUC .946, average precision .908. At 0.5% of ordinary comments
+  flagged it flags 0.4% of the comments staff restored (the rules: 41.8%) and
+  catches 30.7% of a sample of auto-hidden spam (24.0%) and 10.0% of spam
+  people reported (2.1%). Weights trained on an app's data stay with the app.
 
 ## 0.5.0 (2026-10-06)
 

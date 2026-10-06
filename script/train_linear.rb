@@ -76,7 +76,7 @@ end
 names = train.map { |r| r['f'].keys }.flatten.uniq.sort
 transform_for = lambda do |name|
   if name =~ /\.rule\./ then { "transform" => "slog" }
-  elsif name == "text.log_odds" then { "transform" => "clip", "min" => -50, "max" => 50 }
+  elsif name == "text.log_odds" then { "transform" => "slog" } # runs into the hundreds; clipping loses its order
   else { "transform" => "raw" }
   end
 end
