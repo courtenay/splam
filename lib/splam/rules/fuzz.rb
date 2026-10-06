@@ -15,9 +15,8 @@ class Splam::Rules::Fuzz < Splam::Rule
     ignore_if = [%r{vendor/rails}, /EXC_BAD_ACCESS/, /JavaAppLauncher/, %r{Contents/MacOS}, %r{/Library/}]
     matches = 0
     # looks like a stack trace
-    ignore_if.each do |pattern|
-      return if @body.scan(pattern)
-    end
+    # (before 0.4 `return if @body.scan(pattern)` always returned: [] is truthy)
+    return if ignore_if.any? { |pattern| @body =~ pattern }
     patterns.each do |pattern|
       results = @body.scan(pattern)
       if results && results.size > 0
@@ -25,6 +24,6 @@ class Splam::Rules::Fuzz < Splam::Rule
       end
       matches += results.size
     end
-    add_score matches.size ** 4, "Aggregate number of bad patterns was #{matches}." if matches > 1
+    add_score matches ** 4, "Aggregate number of bad patterns was #{matches}." if matches > 1
   end
 end
