@@ -12,7 +12,7 @@ class Splam::Rules::GoodWords < Splam::Rule
     good_words << "project management"
     good_words << "/usr/local/lib" << "gems"
 
-    body = @body.downcase
+    body = @document.downcased
     good_words.each { |rule|
       # a Regexp as given; a word must match whole (this scanned the string
       # "\b#{rule}\b", whose \b are backspaces, so it never matched before 0.5)

@@ -6,6 +6,8 @@ end
 require File.dirname(__FILE__) + "/splam/config"
 require File.dirname(__FILE__) + "/splam/rule"
 require File.dirname(__FILE__) + "/splam/linear_scan"
+require File.dirname(__FILE__) + "/splam/ngram"
+require File.dirname(__FILE__) + "/splam/document"
 require File.dirname(__FILE__) + "/splam/rules"
 require File.dirname(__FILE__) + "/splam/rules/russian"
 
@@ -34,15 +36,19 @@ module Splam
       end
     end
 
+    # [total score, each rule's reasons, rule key => that rule's score]; the
+    # text is prepared once (Splam::Document) and shared by the rules
     def run(record, request)
-      score, reasons = 0, []
+      score, reasons, rule_scores = 0, [], {}
+      document = Splam::Document.new(record.send(body))
       rules.each do |rule_class, weight|
         weight ||= 1
-        worker   = rule_class.run(self, record, weight, request)
+        worker   = rule_class.run(self, record, weight, request, document)
         score   += worker.score
         reasons << worker.reasons
+        rule_scores[rule_class.splam_key] = worker.score
       end
-      [score, reasons]
+      [score, reasons, rule_scores]
     end
 
     # nil when the suite didn't run (conditions, skip, nil field): not spam
@@ -59,7 +65,6 @@ module Splam
     Dir["#{File.dirname(__FILE__)}/splam/rules/*.rb"].each do |f|
       require f
     end
-    require_relative "splam/ngram"
     base.send :extend, ClassMethods
   end
   
@@ -116,6 +121,11 @@ module Splam
     @splam_scores || run_splam_suite(:scores) || {}
   end
 
+  # field => { rule key => that rule's score }, for each suite that ran
+  def splam_rule_scores
+    @splam_rule_scores || run_splam_suite(:rule_scores) || {}
+  end
+
   # every suite's reasons, one array per rule
   def splam_reasons
     @splam_reasons || run_splam_suite(:reasons) || []
@@ -146,18 +156,19 @@ protected
     splam_suites = self.class.splam_suites || raise("Splam::Suite is not initialized")
     return false if splam_suites.empty?
 
-    @splam_score, @splam_reasons, @splam_reasons_by_field, @splam_scores = 0, [], {}, {}
+    @splam_score, @splam_reasons, @splam_reasons_by_field, @splam_scores, @splam_rule_scores = 0, [], {}, {}, {}
     splam_suites.each do |splam_suite|
       next if splam_suite.conditions && splam_suite.conditions.call(self) == false
       next if skip_splam_check
       next if send(splam_suite.body).nil?
 
       @request = splam_suite.request.call(self) if splam_suite.request
-      score, reasons  = splam_suite.run(self, @request)
+      score, reasons, rule_scores = splam_suite.run(self, @request)
       @splam_score   += score
       @splam_reasons |= reasons
       (@splam_reasons_by_field[splam_suite.body] ||= []).concat(reasons)
       @splam_scores[splam_suite.body] = score
+      @splam_rule_scores[splam_suite.body] = rule_scores
     end
     instance_variable_get("@splam_#{attr_suffix}") if attr_suffix
   end

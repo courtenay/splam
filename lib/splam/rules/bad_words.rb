@@ -136,10 +136,9 @@ class Splam::Rules::BadWords < Splam::Rule
     suspicious_words << "forums/member.php?u=" << "chat room" << "free chat" << "yahoo chat" << "page.php"
 
 
-    # The link scans are Splam::LinearScan's, found once: they were
-    # repeated for every matched word, each quadratic on "<a<a<a...".
-    body = @body.downcase
-    link_texts = link_attributes = raw_link_texts = nil
+    # The link scans are Splam::LinearScan's, done once per document (Splam::Document):
+    # they were repeated for every matched word, each quadratic on "<a<a<a...".
+    body = @document.downcased
 
     bad_words.each do |key,wordlist|
       counter = 0
@@ -157,13 +156,13 @@ class Splam::Rules::BadWords < Splam::Rule
           add_score((self.class.bad_word_score ** multiplier), "nasty word (#{multiplier}x): '#{word}'")
           # Add more points if the bad word is INSIDE a link
           # (before 0.5 this scored every link on the page, word or not)
-          (link_texts ||= Splam::LinearScan.link_texts(body)).each do |match|
+          @document.link_texts(true).each do |match|
             add_score self.class.bad_word_score ** 4 * count_in.call(match[0]), "nasty word inside a link: #{word}"
           end
           Splam::LinearScan.http_links_to(body, pair || word).each do |match|
             add_score self.class.bad_word_score ** 4 * count_in.call(match[0]), "nasty word inside a straight-up link: #{word}"
           end
-          (link_attributes ||= Splam::LinearScan.link_attributes(body)).each do |match|
+          @document.link_attributes(true).each do |match|
             add_score self.class.bad_word_score ** 4 * count_in.call(match[0]), "nasty word inside a URL: #{word}"
           end
         end
@@ -178,7 +177,7 @@ class Splam::Rules::BadWords < Splam::Rule
       if results && results.size > 0
         add_score (self.class.suspicious_word_score * results.size), "suspicious word: #{word}"
         # Add more points if the bad word is INSIDE a link
-        (raw_link_texts ||= Splam::LinearScan.link_texts(@body)).each do |match|
+        @document.link_texts.each do |match|
           add_score((self.class.suspicious_word_score * match[0].scan(word).size), "suspicious word inside a link: #{word}")
         end
       end
