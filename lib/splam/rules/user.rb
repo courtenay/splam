@@ -14,14 +14,12 @@ class Splam::Rules::User < Splam::Rule
     false
   end
 
-  # Returns the list, which is truthy, when nothing matches: every user scores
-  # "suspicious" (+50). Kept as it was for this release; fixed in 0.4.
+  # (before 0.4 it returned the list, which is truthy, when nothing matched,
+  # so every user scored "suspicious")
   def self.check_badlist(email)
     bad_words = ["qq.com", "yahoo.cn", "126.com"]
     bad_words |= %w( mortgage keto )
-    bad_words.each do |word|
-      return true if email.include?(word)
-    end
+    bad_words.any? { |word| email.include?(word) }
   end
 
   private

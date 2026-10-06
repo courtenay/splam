@@ -1,5 +1,9 @@
 # encoding: utf-8
 class Splam::Rules::Chinese < Splam::Rule
+  # Scripts whose text the word rules can't read, so their characters score
+  # here instead. Hangul is left out since 0.4: in Tender's labelled comments,
+  # Korean was nearly all ham (233 ham vs 10 spam over the threshold on Korean
+  # alone). The rest wait for a text model that learns from any language.
   BLOCKS = [
 #   [  0x0000,  0x007F, "Basic Latin" ],
 #   [  0x0080,  0x00FF, "Latin-1 Supplement" ],
@@ -35,7 +39,7 @@ class Splam::Rules::Chinese < Splam::Rule
 #   [  0x0F00,  0x0FFF, "Tibetan" ],
 #   [  0x1000,  0x109F, "Myanmar" ],
 #   [  0x10A0,  0x10FF, "Georgian" ],
-   [  0x1100,  0x11FF, "Hangul Jamo" ],
+#  [  0x1100,  0x11FF, "Hangul Jamo" ],
 #   [  0x1200,  0x137F, "Ethiopic" ],
 #   [  0x1380,  0x139F, "Ethiopic Supplement" ],
 #   [  0x13A0,  0x13FF, "Cherokee" ],
@@ -105,7 +109,7 @@ class Splam::Rules::Chinese < Splam::Rule
 #   [  0x3040,  0x309F, "Hiragana" ],
 #   [  0x30A0,  0x30FF, "Katakana" ],
 #   [  0x3100,  0x312F, "Bopomofo" ],
-   [  0x3130,  0x318F, "Hangul Compatibility Jamo" ],
+#  [  0x3130,  0x318F, "Hangul Compatibility Jamo" ],
 #   [  0x3190,  0x319F, "Kanbun" ],
 #   [  0x31A0,  0x31BF, "Bopomofo Extended" ],
    [  0x31C0,  0x31EF, "CJK Strokes" ],
@@ -130,15 +134,15 @@ class Splam::Rules::Chinese < Splam::Rule
 #   [  0xA8E0,  0xA8FF, "Devanagari Extended" ],
 #   [  0xA900,  0xA92F, "Kayah Li" ],
 #   [  0xA930,  0xA95F, "Rejang" ],
-   [  0xA960,  0xA97F, "Hangul Jamo Extended-A" ],
+#  [  0xA960,  0xA97F, "Hangul Jamo Extended-A" ],
 #   [  0xA980,  0xA9DF, "Javanese" ],
 #   [  0xAA00,  0xAA5F, "Cham" ],
 #   [  0xAA60,  0xAA7F, "Myanmar Extended-A" ],
 #   [  0xAA80,  0xAADF, "Tai Viet" ],
 #   [  0xAB00,  0xAB2F, "Ethiopic Extended-A" ],
 #   [  0xABC0,  0xABFF, "Meetei Mayek" ],
-   [  0xAC00,  0xD7AF, "Hangul Syllables" ],
-   [  0xD7B0,  0xD7FF, "Hangul Jamo Extended-B" ],
+#  [  0xAC00,  0xD7AF, "Hangul Syllables" ],
+#  [  0xD7B0,  0xD7FF, "Hangul Jamo Extended-B" ],
 #   [  0xD800,  0xDB7F, "High Surrogates" ],
 #   [  0xDB80,  0xDBFF, "High Private Use Surrogates" ],
 #   [  0xDC00,  0xDFFF, "Low Surrogates" ],

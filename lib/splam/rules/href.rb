@@ -84,7 +84,8 @@ class Splam::Rules::Href < Splam::Rule
       elsif tokens[-1] =~ /\Shttps?:\/\//
         add_score 40, "Text ends in a token containing http token"
       end
-      if tokens.all? {|t| t =~ /^https?[:]\/\// }
+      # (an empty body counted: all? is true for no tokens)
+      if tokens.any? && tokens.all? {|t| t =~ /^https?[:]\/\// }
         add_score 50, "Text is just http tokens with no words"
       end
       if tokens.size > 2 && tokens.uniq.size == 1

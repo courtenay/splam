@@ -108,12 +108,10 @@ class SplamTest < Test::Unit::TestCase
   # 180 or the number in its file name; ham at 100 or more). Golden lists, so
   # that a scoring change shows up here; fixes in 0.4 shorten them.
   KNOWN_WRONG = {
-    :default    => { :spam => %w(spam-13518.txt spam-13519.txt spam-13520.txt spam-13521.txt),
-                     :ham  => %w(feedlinks.txt) },
-    :lighthouse => { :spam => [],
-                     :ham  => %w(backtrace.txt epic.txt epic_warehouse.txt extra_fields.txt feedlinks.txt hub.txt mario.txt
-                                 mylyn.txt omg_thanks_again_finally_warehouse.txt omg_thanks_again_warehouse.txt
-                                 sample_html.txt thanks_warehouse.txt) },
+    :default    => { :spam => %w(amazon.txt comment_bbc.txt ottersex.txt spam-13518.txt spam-13519.txt spam-13520.txt spam-13521.txt),
+                     :ham  => [] },
+    :lighthouse => { :spam => %w(comment_bbc.txt ottersex.txt),
+                     :ham  => %w(feedlinks.txt mario.txt mylyn.txt sample_html.txt) },
   }
 
   def fixtures_wrong(profile)
@@ -150,7 +148,7 @@ class SplamTest < Test::Unit::TestCase
     f.body = "true"
     f.request = { :time => 1 }
     assert f.splam?
-    assert_equal 300 + 100 + 50, f.splam_score # FormTimer, then True: a one-word body, a 3+ letter run
+    assert_equal 300 + 100, f.splam_score # FormTimer, then True's one-word body
   end
 
   def test_scores_per_field

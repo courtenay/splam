@@ -15,13 +15,8 @@ class Splam::Rules::WordLength < Splam::Rule
   end
   
   def run
-    words = []
-    words = @body.split(/\s/).map do |word|
-      word.size
-    end
-    # (this once tried to drop links with `words.delete_if { |w| w =~ /^http/ }`,
-    # but on lengths, where it never matched; Ruby 3.2 raises on Integer#=~.
-    # Links still count: dropping them would change scores. See 0.4.)
+    # links don't count (before 0.4 this filtered the lengths, not the words, so it never did)
+    words = @body.split(/\s/).reject { |word| word =~ /^https?:\/\// }.map(&:size)
 
     # Only count word lengths over 10
     if words.size > 5

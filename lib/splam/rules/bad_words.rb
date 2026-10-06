@@ -8,6 +8,16 @@ class Splam::Rules::BadWords < Splam::Rule
     def bad_word_score
       @bad_word_score || Splam.config.bad_word_score
     end
+
+    # A list entry (a regex fragment) as a case-insensitive Regexp, with \b on
+    # each side that is a word character. Before 0.4 both sides always got \b,
+    # so entries starting or ending in punctuation ("dear,", "<<<91") could
+    # never match; every entry still matches what it matched then.
+    def word_regex(word)
+      lead = word =~ /\A[[:word:]]/ ? "\\b" : ""
+      trail = word =~ /[[:word:]]\z/ ? "\\b" : ""
+      Regexp.new("#{lead}(#{word})#{trail}", "i")
+    end
   end
 
   self.suspicious_word_score = 4
@@ -68,8 +78,8 @@ class Splam::Rules::BadWords < Splam::Rule
       "Microsoft Office 365 Technical Support", "gmail support", "helpline number",
       "MYOB support", "microsoftoutlookoffice", "emailonline", "onlinesupport",
       "customercarenumber", "support-australia", "norton360-support",
-      /(Mac|Amazon|Amazon Prime|Norton Antivirus 360|AVG|garmin|Microsoft|Yahoo|Icloud|Kapersky Antivirus) (Tech Support|Support|Help|Customer Service|Customer Support) (Phone )?Number/,
-      /Support Number [+]1[-]844/,
+      /(Mac|Amazon|Amazon Prime|Norton Antivirus 360|AVG|garmin|Microsoft|Yahoo|Icloud|Kapersky Antivirus) (Tech Support|Support|Help|Customer Service|Customer Support) (Phone )?Number/i,
+      /Support Number [+]1[-]844/i,
       "353-12544725",
 
       "Chrome Customer Care", "helpline number",
@@ -134,7 +144,7 @@ class Splam::Rules::BadWords < Splam::Rule
     bad_words.each do |key,wordlist|
       counter = 0
       wordlist.each do |word|
-        regex = word.is_a?(Regexp) ? word : Regexp.new("\\b(#{word})\\b","i")
+        regex = word.is_a?(Regexp) ? word : self.class.word_regex(word)
         # /love .*?solution/ is quadratic on a line of "love ", so it's
         # matched as the pair of strings everywhere
         pair = ["love ", "solution"] if word.equal?(LOVE_SOLUTION)
@@ -146,8 +156,9 @@ class Splam::Rules::BadWords < Splam::Rule
           multiplier = 5 if results.size > 5
           add_score((self.class.bad_word_score ** multiplier), "nasty word (#{multiplier}x): '#{word}'")
           # Add more points if the bad word is INSIDE a link
+          # (before 0.4 this scored every link on the page, word or not)
           (link_texts ||= Splam::LinearScan.link_texts(body)).each do |match|
-            add_score self.class.bad_word_score ** 4 * multiplier, "nasty word inside a link: #{word}"
+            add_score self.class.bad_word_score ** 4 * count_in.call(match[0]), "nasty word inside a link: #{word}"
           end
           Splam::LinearScan.http_links_to(body, pair || word).each do |match|
             add_score self.class.bad_word_score ** 4 * count_in.call(match[0]), "nasty word inside a straight-up link: #{word}"
@@ -156,9 +167,10 @@ class Splam::Rules::BadWords < Splam::Rule
             add_score self.class.bad_word_score ** 4 * count_in.call(match[0]), "nasty word inside a URL: #{word}"
           end
         end
-        if counter > (wordlist.size / 2)
-          add_score 50, "Lots of bad words from one genre (#{key}): #{counter}"
-        end
+      end
+      # once per genre (before 0.4 it sat in the word loop and repeated for each later word)
+      if counter > (wordlist.size / 2)
+        add_score 50, "Lots of bad words from one genre (#{key}): #{counter}"
       end
     end
     suspicious_words.each do |word|
