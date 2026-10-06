@@ -24,7 +24,8 @@ profile exactly as 0.3.0 did, checked on 38,375 labelled comments.
   profile. "User has lots of dots" no longer raises (it passed a String score).
 - Httpbl checks the app's `ip.<ip>` cache first, queries DNS only with an
   `api_key`, and treats a DNS timeout or refusal as "not listed" (they raised).
-- ArmsRace's "bFlood ending" (+200, from Tender's copy) applies with both profiles.
+- ArmsRace no longer scores a "bflood" ending (+200 in Tender's copy, for one
+  long-gone spammer; no comment in the labelled set ended that way).
 - Keyhits is no longer referenced: it's Tender's own rule. The tests use an
   example app rule instead.
 - Runs on Ruby 3.2+: WordLength called `=~` on Integers (it never matched, so
