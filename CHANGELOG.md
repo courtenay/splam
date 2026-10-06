@@ -9,7 +9,7 @@ default profile, text rules only:
 | | ordinary comments | restored customer comments | hand-reported spam | sample of auto-hidden spam |
 |---|---|---|---|---|
 | 0.3.1 | 0.5% | 51.1% | 2.4% | 25.3% |
-| 0.4.0 | 0.3% | 45.1% | 2.1% | 24.0% |
+| 0.4.0 | 0.3% | 41.8% | 2.1% | 24.0% |
 
 - GoodWords matches. It scanned the string `"\b#{word}\b"`, whose `\b` are
   backspaces, so it never did. Each word or phrase now matches whole, at -5 per
@@ -33,6 +33,12 @@ default profile, text rules only:
 - :lighthouse profile: User's `check_badlist` no longer flags every user (+50);
   Html's "Don't get too excited" (+20) needs a `!`; Fuzz runs (it returned early
   on every body) and its aggregate score uses the count, not `Integer#size`.
+- Korean text no longer scores for its script: the Chinese rule drops the
+  Hangul blocks and the Korean rule is opt-in. In Tender's labelled comments
+  Korean was nearly all ham (restored customer comments flagged: 45.1% to 41.8%,
+  no spam lost). Chinese and Japanese ideographs still score; the word rules
+  can't read them, and dropping them also loses spam, so they wait for a text
+  model that learns from any language.
 - script/eval.rb skips the title suite when a row has no title (labelled sets
   built after spam was purged often lack it).
 - Fixture tests: the default profile flags no ham fixture (was 1) and misses 7
