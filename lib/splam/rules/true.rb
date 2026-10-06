@@ -36,14 +36,9 @@ class Splam::Rules::True < Splam::Rule
 
   private
 
-  # A letter repeated more than `times` times. Without the :lighthouse
-  # profile this is still the old check, any run of times + 1 letters, which
-  # matches ordinary words; 0.4 makes the backreference the only behaviour.
+  # A letter repeated more than `times` times ("aaa"). Before 0.4 the default
+  # profile checked any run of times + 1 letters, which every ordinary word matches.
   def repeated_letters?(times)
-    if Splam.config.feature?(:lighthouse_words)
-      @body =~ /([a-z])\1{#{times},}/
-    else
-      @body =~ /[a-z]{#{times + 1},}/
-    end
+    @body =~ /([a-z])\1{#{times},}/
   end
 end
