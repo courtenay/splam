@@ -1,6 +1,9 @@
 # Changelog
 
-## 0.4.0 (unreleased)
+## 0.5.0 (2026-10-06)
+
+(Released as 0.5.0: the v0.4.0 tag belongs to the unmerged 2025 Bayesian
+filter branch.)
 
 Rule fixes. Scores change; each change was measured on 10,810 labelled Tender
 comments (2023 onward) with `script/eval.rb`. Flag rates at Tender's `> 250`,
@@ -9,7 +12,7 @@ default profile, text rules only:
 | | ordinary comments | restored customer comments | hand-reported spam | sample of auto-hidden spam |
 |---|---|---|---|---|
 | 0.3.1 | 0.5% | 51.1% | 2.4% | 25.3% |
-| 0.4.0 | 0.3% | 41.8% | 2.1% | 24.0% |
+| 0.5.0 | 0.3% | 41.8% | 2.1% | 24.0% |
 
 - GoodWords matches. It scanned the string `"\b#{word}\b"`, whose `\b` are
   backspaces, so it never did. Each word or phrase now matches whole, at -5 per

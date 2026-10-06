@@ -15,7 +15,7 @@ class Splam::Rules::WordLength < Splam::Rule
   end
   
   def run
-    # links don't count (before 0.4 this filtered the lengths, not the words, so it never did)
+    # links don't count (before 0.5 this filtered the lengths, not the words, so it never did)
     words = @body.split(/\s/).reject { |word| word =~ /^https?:\/\// }.map(&:size)
 
     # Only count word lengths over 10

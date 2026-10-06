@@ -106,7 +106,7 @@ class SplamTest < Test::Unit::TestCase
 
   # Which fixtures each profile gets wrong today (spam under its threshold,
   # 180 or the number in its file name; ham at 100 or more). Golden lists, so
-  # that a scoring change shows up here; fixes in 0.4 shorten them.
+  # that a scoring change shows up here; fixes in 0.5 shorten them.
   KNOWN_WRONG = {
     :default    => { :spam => %w(amazon.txt comment_bbc.txt ottersex.txt spam-13518.txt spam-13519.txt spam-13520.txt spam-13521.txt),
                      :ham  => [] },

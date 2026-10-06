@@ -15,7 +15,7 @@ class Splam::Rules::GoodWords < Splam::Rule
     body = @body.downcase
     good_words.each { |rule|
       # a Regexp as given; a word must match whole (this scanned the string
-      # "\b#{rule}\b", whose \b are backspaces, so it never matched before 0.4)
+      # "\b#{rule}\b", whose \b are backspaces, so it never matched before 0.5)
       pattern = rule.is_a?(Regexp) ? rule : /(?<![[:word:]])#{Regexp.escape(rule)}(?![[:word:]])/
       add_score -5 * body.scan(pattern).size, "relevant word match: #{rule}"
     }
