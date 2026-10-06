@@ -1,6 +1,6 @@
 name = "splam"
 
-Gem::Specification.new name, "0.5.0" do |s|
+Gem::Specification.new name, "0.6.0" do |s|
   s.summary = "Test comments and users for spam signifiers and score"
   s.authors = ["ENTP"]
   s.email = "courtenay@entp.com"

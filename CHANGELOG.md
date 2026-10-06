@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.6.0 (unreleased)
+## 0.6.0 (2026-10-07)
 
 The architecture for a trained scorer. So far scores don't change: every step
 was compared row by row with 0.5.0 on 10,810 labelled Tender comments, with
