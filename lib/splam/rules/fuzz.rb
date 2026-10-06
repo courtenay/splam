@@ -15,7 +15,7 @@ class Splam::Rules::Fuzz < Splam::Rule
     ignore_if = [%r{vendor/rails}, /EXC_BAD_ACCESS/, /JavaAppLauncher/, %r{Contents/MacOS}, %r{/Library/}]
     matches = 0
     # looks like a stack trace
-    # (before 0.4 `return if @body.scan(pattern)` always returned: [] is truthy)
+    # (before 0.5 `return if @body.scan(pattern)` always returned: [] is truthy)
     return if ignore_if.any? { |pattern| @body =~ pattern }
     patterns.each do |pattern|
       results = @body.scan(pattern)

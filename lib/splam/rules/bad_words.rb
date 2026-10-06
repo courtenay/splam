@@ -10,7 +10,7 @@ class Splam::Rules::BadWords < Splam::Rule
     end
 
     # A list entry (a regex fragment) as a case-insensitive Regexp, with \b on
-    # each side that is a word character. Before 0.4 both sides always got \b,
+    # each side that is a word character. Before 0.5 both sides always got \b,
     # so entries starting or ending in punctuation ("dear,", "<<<91") could
     # never match; every entry still matches what it matched then.
     def word_regex(word)
@@ -156,7 +156,7 @@ class Splam::Rules::BadWords < Splam::Rule
           multiplier = 5 if results.size > 5
           add_score((self.class.bad_word_score ** multiplier), "nasty word (#{multiplier}x): '#{word}'")
           # Add more points if the bad word is INSIDE a link
-          # (before 0.4 this scored every link on the page, word or not)
+          # (before 0.5 this scored every link on the page, word or not)
           (link_texts ||= Splam::LinearScan.link_texts(body)).each do |match|
             add_score self.class.bad_word_score ** 4 * count_in.call(match[0]), "nasty word inside a link: #{word}"
           end
@@ -168,7 +168,7 @@ class Splam::Rules::BadWords < Splam::Rule
           end
         end
       end
-      # once per genre (before 0.4 it sat in the word loop and repeated for each later word)
+      # once per genre (before 0.5 it sat in the word loop and repeated for each later word)
       if counter > (wordlist.size / 2)
         add_score 50, "Lots of bad words from one genre (#{key}): #{counter}"
       end

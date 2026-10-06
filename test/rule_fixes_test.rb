@@ -1,6 +1,6 @@
 require File.expand_path('test_helper', File.dirname(__FILE__))
 
-# One test per rule fix in 0.4, each scoring a body with one rule.
+# One test per rule fix in 0.5, each scoring a body with one rule.
 class RuleFixesTest < Test::Unit::TestCase
   def teardown
     Splam.reset_config!

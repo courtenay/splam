@@ -11,7 +11,7 @@ class Splam::Rules::Html < Splam::Rule
 
     if Splam.config.feature?(:trailing_tag) && ends_in_tag?(@body.strip)
       add_score(100, "Body with a trailing link")
-      # (before 0.4 `if @body.scan(/[!]/)` was true for any body)
+      # (before 0.5 `if @body.scan(/[!]/)` was true for any body)
       add_score(20, "Don't get too excited.") if @body.include?("!")
     end
 

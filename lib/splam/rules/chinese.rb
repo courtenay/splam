@@ -1,7 +1,7 @@
 # encoding: utf-8
 class Splam::Rules::Chinese < Splam::Rule
   # Scripts whose text the word rules can't read, so their characters score
-  # here instead. Hangul is left out since 0.4: in Tender's labelled comments,
+  # here instead. Hangul is left out since 0.5: in Tender's labelled comments,
   # Korean was nearly all ham (233 ham vs 10 spam over the threshold on Korean
   # alone). The rest wait for a text model that learns from any language.
   BLOCKS = [
