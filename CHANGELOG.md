@@ -1,6 +1,45 @@
 # Changelog
 
-## 0.3.1 (unreleased)
+## 0.4.0 (unreleased)
+
+Rule fixes. Scores change; each change was measured on 10,810 labelled Tender
+comments (2023 onward) with `script/eval.rb`. Flag rates at Tender's `> 250`,
+default profile, text rules only:
+
+| | ordinary comments | restored customer comments | hand-reported spam | sample of auto-hidden spam |
+|---|---|---|---|---|
+| 0.3.1 | 0.5% | 51.1% | 2.4% | 25.3% |
+| 0.4.0 | 0.3% | 45.1% | 2.1% | 24.0% |
+
+- GoodWords matches. It scanned the string `"\b#{word}\b"`, whose `\b` are
+  backspaces, so it never did. Each word or phrase now matches whole, at -5 per
+  occurrence.
+- BadWords: the link-text bonus counts the word inside each link. It added
+  `bad_word_score**4` for every link on the page once any bad word appeared.
+  (The largest change: restored customer comments flagged went from 50.7% to 45.4%.)
+- BadWords: the one-genre bonus (+50) is added once per genre, not once per word
+  after the genre passed half its list.
+- BadWords: `\b` goes only on a side of an entry that is a word character, so
+  entries that start or end in punctuation ("dear,", "<<<91", the "[(][+]1[)]"
+  phone patterns) can match; everything that matched before still does. The two
+  capitalised support-scam regexes get `/i` (they run on a downcased body).
+- Russian: each listed letter scores once (о, р and т were listed 3, 3 and 2 times).
+- True: "repeated letter" means a letter repeated (`aaa`) with every profile; the
+  default profile matched any run of 3 or 6 letters, i.e. nearly every word.
+- Href: a blank body no longer counts as "just http tokens" (+50).
+- Bbcode: `[img` is counted; `[IMG` was counted twice.
+- WordLength: links (http and https) are left out of the word lengths, as
+  intended; the filter ran on the lengths, so it never matched.
+- :lighthouse profile: User's `check_badlist` no longer flags every user (+50);
+  Html's "Don't get too excited" (+20) needs a `!`; Fuzz runs (it returned early
+  on every body) and its aggregate score uses the count, not `Integer#size`.
+- script/eval.rb skips the title suite when a row has no title (labelled sets
+  built after spam was purged often lack it).
+- Fixture tests: the default profile flags no ham fixture (was 1) and misses 7
+  spam fixtures (was 4); the :lighthouse profile flags 4 ham fixtures (was 12)
+  and misses 2 spam ones (was 0).
+
+## 0.3.1 (2026-10-06)
 
 One gem again: Tender's copy and 0.3.0 merged. Scores are unchanged for both:
 the default profile scores exactly as Tender's copy did, and the :lighthouse
