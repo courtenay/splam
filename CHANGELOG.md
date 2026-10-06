@@ -15,6 +15,15 @@ both profiles (0 rows differ).
   `data/good_words.txt`, one entry per line (a string, or `re:/regex/flags`).
   They are read once per process, and each entry's Regexp is compiled once;
   checks are 2-3x faster (7 ms per comment on the labelled set, from 17-24).
+- `Splam::TextModel`: Naive Bayes for any language (word unigrams and trigrams,
+  character pairs for Chinese and Japanese), from the 2025 Bayesian branch's
+  maths. Training is keyed by document id: the same label again does nothing,
+  a new one moves the counts once, and counts never go below zero. Stores:
+  `MemoryStore`, and `RedisStore` (one HMGET per label per score; vocabulary and
+  totals are counters, never read by scanning a hash). Not used by the rules or
+  the score yet. `script/eval_text_model.rb` trains and scores it offline: on
+  Tender's labelled comments (train before 2023, test after) ROC AUC .944,
+  average precision .897, against .641 / .462 for the rules.
 
 ## 0.5.0 (2026-10-06)
 
