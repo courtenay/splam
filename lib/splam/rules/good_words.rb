@@ -13,8 +13,11 @@ class Splam::Rules::GoodWords < Splam::Rule
     good_words << "/usr/local/lib" << "gems"
 
     body = @body.downcase
-    good_words.each { |rule| 
-      add_score -5 * body.scan("\b#{rule}\b").size, "relevant word match: #{rule}"
+    good_words.each { |rule|
+      # a Regexp as given; a word must match whole (this scanned the string
+      # "\b#{rule}\b", whose \b are backspaces, so it never matched before 0.4)
+      pattern = rule.is_a?(Regexp) ? rule : /(?<![[:word:]])#{Regexp.escape(rule)}(?![[:word:]])/
+      add_score -5 * body.scan(pattern).size, "relevant word match: #{rule}"
     }
   end
 end
