@@ -32,6 +32,17 @@ module Splam
     attr_writer :bad_word_score
     attr_accessor :weights
 
+    # Hooks for an app's own data, each a lambda (or nil):
+    # text_model: record => a Splam::TextModel; its log odds become the
+    #   "text.log_odds" feature
+    # text_for: record => the text the text model scores (default: the checked fields)
+    # extra_features: record => { name => number }, e.g. { "via_email" => 1 }
+    # similar_texts: (record, text) => [{ :text, :similarity (optional),
+    #   :same_author (optional) }, ...], earlier texts like this one (Copycat)
+    attr_accessor :text_model, :text_for, :extra_features, :similar_texts
+    # a Splam::LinearScorer: splam_result.probability
+    attr_accessor :scorer
+
     def initialize
       self.profile = :default
       @weights = {}
