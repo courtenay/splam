@@ -157,9 +157,10 @@ class Splam::Rules::BadWords < Splam::Rule
             add_score self.class.bad_word_score ** 4 * count_in.call(match[0]), "nasty word inside a URL: #{word}"
           end
         end
-        if counter > (wordlist.size / 2)
-          add_score 50, "Lots of bad words from one genre (#{key}): #{counter}"
-        end
+      end
+      # once per genre (before 0.4 it sat in the word loop and repeated for each later word)
+      if counter > (wordlist.size / 2)
+        add_score 50, "Lots of bad words from one genre (#{key}): #{counter}"
       end
     end
     suspicious_words.each do |word|
