@@ -1,4 +1,5 @@
 require 'uri'
+require 'addressable/uri'
 # This plugin checks for links in the text, and adds scores for having many links,
 class Splam::Rules::Href < Splam::Rule
   
@@ -7,13 +8,20 @@ class Splam::Rules::Href < Splam::Rule
     add_score 50 * @body.scan(/href\=\s*http/).size, "Shitty html 'href=http'" # 15 points for shitty html
     add_score 35 * @body.scan(/href\="\s+http/).size, "Shitty html 'href=\" http'" # 15 points for shitty html
     add_score 50 * @body.scan(/\A<a.*?<\/a>\Z/).size, "Single link post'"      # 50 points for shitty
-    add_score 50 * @body.scan(/<a.*?<\/a>\Z/).size,   "Trailing html A post "
+    lighthouse = Splam.config.feature?(:lighthouse_href)
+    add_score 50 * trailing_link_post, "Trailing html A post " if lighthouse
 
     link_count = @body.scan("http://").size + @body.scan("https://").size
     add_score 1 * link_count, "Matched 'http[s]://'" # 1 point per link
-    add_score 50, "More than 3 links" if link_count > 3  # more than 10 links? spam.
-    add_score 100, "More than 5 links" if link_count > 5 # more than 20 links? definitely spam.
-    add_score 1000, "More than 10 links" if link_count > 10 # more than 20 links? definitely spam.
+    if lighthouse
+      add_score 50, "More than 3 links" if link_count > 3
+      add_score 100, "More than 5 links" if link_count > 5
+      add_score 1000, "More than 10 links" if link_count > 10
+    else
+      add_score 50, "More than 10 links" if link_count > 10  # more than 10 links? spam.
+      add_score 100, "More than 20 links" if link_count > 20 # more than 20 links? definitely spam.
+      add_score 1000, "More than 50 links" if link_count > 50 # more than 20 links? definitely spam.
+    end
 
     # Modify these scores to weight certain problematic domains.
     # You may need to modify these for your application
@@ -56,14 +64,29 @@ class Splam::Rules::Href < Splam::Rule
     }
     
     tokens = @body.split(/[<>\s]+/)
-    if tokens.any?
+    if lighthouse
+      if tokens.any?
+        if tokens[-1] =~ /^https?:\/\//
+          add_score 10, "Text ends in a http token"
+          add_score 50, "Text ends in a http token and only has one token" if link_count == 1
+          add_score 50, "Text is only a http token" if tokens.size == 1
+        elsif tokens[-1] =~ /\Shttps?:\/\//
+          add_score 40, "Text ends in a token containing http token. Weird but OK."
+        end
+        if tokens.size > 2 && tokens.uniq.size == 1
+          add_score 50, "3+ Duplicated http links"
+        end
+      end
+    else
       if tokens[-1] =~ /^https?:\/\//
         add_score 10, "Text ends in a http token"
         add_score 50, "Text ends in a http token and only has one token" if link_count == 1
-        add_score 50, "Text is only a http token" if tokens.size == 1
       elsif tokens[-1] =~ /\Shttps?:\/\//
-        add_score 40, "Text ends in a token containing http token. Weird but OK."
-      end      
+        add_score 40, "Text ends in a token containing http token"
+      end
+      if tokens.all? {|t| t =~ /^https?[:]\/\// }
+        add_score 50, "Text is just http tokens with no words"
+      end
       if tokens.size > 2 && tokens.uniq.size == 1
         add_score 50, "3+ Duplicated http links"
       end
@@ -72,7 +95,7 @@ class Splam::Rules::Href < Splam::Rule
     lines = body.split
     if lines.size == 1 && lines[0] =~ /^https?[:]\/\//
       add_score 50, "Text comprises only a link"
-    elsif lines.size == 1 && lines[0] =~/^[<]a href/
+    elsif lighthouse && lines.size == 1 && lines[0] =~ /^[<]a href/
       add_score 50, "Text starts with an A tag"
     end
     lines.each do |line|
@@ -107,5 +130,19 @@ class Splam::Rules::Href < Splam::Rule
       end
     end
     end
+  end
+
+  private
+
+  # @body.scan(/<a.*?<\/a>\Z/).size in linear time (that regex restarts at every
+  # "<a" on the last line): 1 when the body ends with "</a>" (before at most one
+  # final newline) and that line has an "<a" before it, else 0
+  def trailing_link_post
+    tail = @body.end_with?("</a>\n") ? @body[0..-2] : @body
+    return 0 unless tail.end_with?("</a>")
+    close = tail.size - 4
+    line_start = (tail.rindex("\n", close) || -1) + 1
+    open = tail.index("<a", line_start)
+    open && open + 2 <= close ? 1 : 0
   end
 end

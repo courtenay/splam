@@ -2,10 +2,12 @@ require 'test/unit'
 $:.unshift(File.dirname(__FILE__) + '/../lib')
 $:.unshift(File.dirname(__FILE__) + '/../lib/splam')
 
+require 'logger'
 require 'splam'
 require 'splam/rule'
 require 'splam/rules'
-# require 'splam/rules/russian'
+# the rules load when a class includes Splam; tests may use them before that
+Dir[File.dirname(__FILE__) + '/../lib/splam/rules/*.rb'].sort.each { |f| require f }
 
 begin
   require 'ruby-debug'

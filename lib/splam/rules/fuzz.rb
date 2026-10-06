@@ -1,4 +1,9 @@
 class Splam::Rules::Fuzz < Splam::Rule
+  # opt-in: part of the :lighthouse profile
+  def self.opt_in?
+    true
+  end
+
   class << self
     attr_accessor :bad_word_score
   end
