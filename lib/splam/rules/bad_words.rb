@@ -146,8 +146,9 @@ class Splam::Rules::BadWords < Splam::Rule
           multiplier = 5 if results.size > 5
           add_score((self.class.bad_word_score ** multiplier), "nasty word (#{multiplier}x): '#{word}'")
           # Add more points if the bad word is INSIDE a link
+          # (before 0.4 this scored every link on the page, word or not)
           (link_texts ||= Splam::LinearScan.link_texts(body)).each do |match|
-            add_score self.class.bad_word_score ** 4 * multiplier, "nasty word inside a link: #{word}"
+            add_score self.class.bad_word_score ** 4 * count_in.call(match[0]), "nasty word inside a link: #{word}"
           end
           Splam::LinearScan.http_links_to(body, pair || word).each do |match|
             add_score self.class.bad_word_score ** 4 * count_in.call(match[0]), "nasty word inside a straight-up link: #{word}"
