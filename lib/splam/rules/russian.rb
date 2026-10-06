@@ -8,7 +8,8 @@ class Splam::Rules::Russian < Splam::Rule
       # unicode char
 #      "\320"
     ]
-    banned_words.each do |word|
+    # each letter once (о, р and т were listed two or three times, so scored that many times)
+    banned_words.uniq.each do |word|
       hits = (3 * @body.scan("#{word}").size) # 1 point for every banned word
       add_score hits, "Suspicious character '#{word}'"
     end
