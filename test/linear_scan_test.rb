@@ -43,7 +43,8 @@ class LinearScanTest < Test::Unit::TestCase
   def test_scores_as_the_old_regexes_did
     body = %(cheap <a href="http://x.com/pills">buy <b>viagra</b></a> at http://spam.example/ now viagra\n) +
            %(<a title="casino"><b>win</b></a> love the solution)
-    assert_equal 160_384, score(body) # Tender's pinned score
+    # 160_384 before 0.4, which stopped the link-text bonus scoring links without the word
+    assert_equal 90_384, score(body)
   end
 
   def test_invalid_utf8
