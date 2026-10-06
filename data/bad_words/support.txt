@@ -1,0 +1,60 @@
+# One entry per line: a word or phrase (case-insensitive; a regex fragment,
+# matched whole where it starts or ends with a word character), or re:/regex/flags.
+customer-support-number
+third party tech support team
+yahoo-support
+098-8579
+hp-printer-help
+yahoo customer service
+getting attached with
+1800-875-393
+0800-098-8371
+800-098-8372
+re:/[+]44[-]800/
+800[-]098
+re:/1[-]800[-]778/
+re:/email-customerservice/
+yahoo experts
+1-800-778-9936
+844-292
+[+]1[-]844
+800[-]921
+facebook-support
+1-888-521-0120
+0800-090-3228
+re:/0800[-]090/
+re:/(dlink|asus|linksys|gmail|brother|lexmark|hp|apple|facebook|microsoft|google|yahoo|safari|office|outlook)-(chrome|printer|browser|technical|email|365|customer)-(support|service)/
+outlook-support
+888-201
+800-986-4764
+[(][+]1[)] 888
+[(][+]61[)] 1800
+1-800-778-9936
+[+]1-800-826-806
+866-324-3042
+supportnumberaustralia
+netgear router
+tutu app
+spotify premium apk
+advertising inquiry for
+Microsoft Office 365 Technical Support
+gmail support
+helpline number
+MYOB support
+microsoftoutlookoffice
+emailonline
+onlinesupport
+customercarenumber
+support-australia
+norton360-support
+re:/(Mac|Amazon|Amazon Prime|Norton Antivirus 360|AVG|garmin|Microsoft|Yahoo|Icloud|Kapersky Antivirus) (Tech Support|Support|Help|Customer Service|Customer Support) (Phone )?Number/i
+re:/Support Number [+]1[-]844/i
+353-12544725
+Chrome Customer Care
+helpline number
+www.customer-helpnumber
+www.printer-customersupport
+www.email-customerservice
+www.customer
+www.printer
+located in Bangalore

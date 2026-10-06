@@ -45,13 +45,17 @@ class Splam::Rule
       tr("-", "_").downcase.to_sym
   end
 
-  def initialize(suite, record, weight = 1.0, request = nil)
-    @suite, @weight, @score, @reasons, @body, @request = suite, weight, 0, [], record.send(suite.body), request
+  # document: the suite's Splam::Document, shared by its rules (made here when
+  # a rule is run on its own)
+  def initialize(suite, record, weight = 1.0, request = nil, document = nil)
+    @suite, @weight, @score, @reasons, @request = suite, weight, 0, [], request
+    @document = document || Splam::Document.new(record.send(suite.body))
+    @body = @document.text
     # the record's user, for rules that inspect it (the :user_record feature); not every record has one
     @user = record.respond_to?(:user) ? record.user : nil
-    # posted bodies aren't checked for valid UTF-8, and scan/downcase raise on it
-    @body = @body.scrub('') if @body.is_a?(String) && !@body.valid_encoding?
   end
+
+  attr_reader :document
   
   def name
     self.class.splam_key

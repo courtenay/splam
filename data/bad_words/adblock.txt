@@ -1,0 +1,29 @@
+# One entry per line: a word or phrase (case-insensitive; a regex fragment,
+# matched whole where it starts or ends with a word character), or re:/regex/flags.
+8107764125
+9958091843
+9783565359
+vashikaran
+vashi
+karan
+vas
+hikarn
+vash
+ikaran
+punjab
+pondicherry
+kerala
+voodoo
+love marriage
+love problem
+re:/\+91/
+baba ji
+babaji
+<<<91
+thailand
+re:/love .*?solution/
+astrologer expert
+re:/black magi[ck]/
+re:/love spells?/
+re:/healing spells?/
+ex wife

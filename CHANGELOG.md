@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.6.0 (unreleased)
+
+The architecture for a trained scorer. So far scores don't change: every step
+was compared row by row with 0.5.0 on 10,810 labelled Tender comments, with
+both profiles (0 rows differ).
+
+- Needs Ruby 2.6 or newer (Tender and Lighthouse both run 2.6); CI tests 2.6 and 3.3.
+- `Splam::Document`: a suite prepares the text once (valid UTF-8, downcased
+  copy, link scans, tokens) and shares it with every rule. `Rule#initialize`
+  takes it as an optional fifth argument.
+- `splam_rule_scores`: field => { rule => score }, for scorers that weigh rules.
+- Word lists are data files: `data/bad_words/*.txt` (the :lighthouse profile
+  adds `data/bad_words/lighthouse/*.txt`), `data/suspicious_words.txt` and
+  `data/good_words.txt`, one entry per line (a string, or `re:/regex/flags`).
+  They are read once per process, and each entry's Regexp is compiled once;
+  checks are 2-3x faster (7 ms per comment on the labelled set, from 17-24).
+
 ## 0.5.0 (2026-10-06)
 
 (Released as 0.5.0: the v0.4.0 tag belongs to the unmerged 2025 Bayesian

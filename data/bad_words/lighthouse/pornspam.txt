@@ -1,0 +1,2 @@
+# Added with the :lighthouse profile.
+video
