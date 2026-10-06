@@ -6,6 +6,7 @@ The architecture for a trained scorer. So far scores don't change: every step
 was compared row by row with 0.5.0 on 10,810 labelled Tender comments, with
 both profiles (0 rows differ).
 
+- Needs Ruby 2.6 or newer (Tender and Lighthouse both run 2.6); CI tests 2.6 and 3.3.
 - `Splam::Document`: a suite prepares the text once (valid UTF-8, downcased
   copy, link scans, tokens) and shares it with every rule. `Rule#initialize`
   takes it as an optional fifth argument.
