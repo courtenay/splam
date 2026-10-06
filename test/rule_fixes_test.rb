@@ -77,6 +77,16 @@ class RuleFixesTest < Test::Unit::TestCase
     assert_equal 0, score(:word_length, words + "https://example.com/" + "a" * 80)
   end
 
+  def test_korean_text_scores_nothing_by_default
+    klass = Class.new { include ::Splam; attr_accessor :body; splammable :body }
+    doc = klass.new
+    doc.body = "안녕하세요 로그인이 안 됩니다 의 전 밤"
+    assert_equal [], doc.splam_reasons.flatten.grep(/korean|Hangul/i)
+    doc = klass.new
+    doc.body = "你好，我无法登录"
+    assert doc.splam_reasons.flatten.grep(/CJK Unified/).any?
+  end
+
   # :lighthouse profile rules
   User = Struct.new(:name, :email, :trusted) do
     def trusted?; trusted; end
