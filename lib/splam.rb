@@ -9,6 +9,7 @@ require File.dirname(__FILE__) + "/splam/linear_scan"
 require File.dirname(__FILE__) + "/splam/ngram"
 require File.dirname(__FILE__) + "/splam/document"
 require File.dirname(__FILE__) + "/splam/word_list"
+require File.dirname(__FILE__) + "/splam/text_model"
 require File.dirname(__FILE__) + "/splam/rules"
 require File.dirname(__FILE__) + "/splam/rules/russian"
 
