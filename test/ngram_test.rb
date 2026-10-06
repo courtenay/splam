@@ -1,9 +1,9 @@
 require File.expand_path('test_helper', File.dirname(__FILE__))
 require "splam/ngram"
-# needs a Redis on localhost (db 12); omitted without one
+# needs a Redis (db 12) on localhost or REDIS_HOST; omitted without one
 begin
   require "redis"
-  REDIS = Redis.new :db => "12" unless defined?(REDIS)
+  REDIS = Redis.new(:host => ENV["REDIS_HOST"] || "127.0.0.1", :db => 12) unless defined?(REDIS)
   REDIS.ping
   NGRAM_REDIS = true
 rescue StandardError, LoadError
@@ -13,18 +13,18 @@ end
 class NgramTest < Test::Unit::TestCase
 
   def setup
-    omit("needs Redis on localhost:6379") unless NGRAM_REDIS
+    omit("needs Redis on localhost:6379 or REDIS_HOST") unless NGRAM_REDIS
     @corpus = Splam::Ngram.new
 
     REDIS.del "ham"
     REDIS.del "spam"
     
     Dir.glob(File.join(File.dirname(__FILE__), "fixtures", "comment", "spam", "*.txt")).each do |f|
-      spam = File.open(f).read
+      spam = File.read(f, :encoding => "UTF-8")
       @corpus.train spam, true
     end
     Dir.glob(File.join(File.dirname(__FILE__), "fixtures", "comment", "ham", "*.txt")).each do |f|
-      ham = File.open(f).read
+      ham = File.read(f, :encoding => "UTF-8")
       @corpus.train ham, false
     end
   end

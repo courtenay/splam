@@ -2,19 +2,19 @@ name: test
 on: [push, pull_request]
 jobs:
   test:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
+        # official images: setup-ruby's 2.2 build crashes on current runners
         ruby: ['2.2', '2.6', '3.3']
+    container: ruby:${{ matrix.ruby }}
     services:
       redis:
         image: redis:7
-        ports: ['6379:6379']
+    env:
+      REDIS_HOST: redis
     steps:
       - uses: actions/checkout@v4
-      - uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: ${{ matrix.ruby }}
-          bundler-cache: true
+      - run: bundle install --jobs 4
       - run: bundle exec rake test
