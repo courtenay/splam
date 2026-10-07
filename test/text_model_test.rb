@@ -68,6 +68,21 @@ class TextModelTest < Test::Unit::TestCase
     assert !m.features("0123456789 viagra").key?("w:viagra")
   end
 
+  def test_prune_drops_rare_features_and_keeps_totals_right
+    m = model
+    train_a_little(m)
+    m.train(5, "cheap viagra again", :spam)
+    store = m.store
+    before = store.table(:spam).size + store.table(:ham).size
+    dropped = store.prune(2)
+    assert_operator dropped, :>, 0
+    assert_equal before - dropped, store.table(:spam).size + store.table(:ham).size
+    assert_equal store.table(:spam).values.inject(0, :+), m.stats[:spam_tokens]
+    assert_equal store.table(:spam).size, m.stats[:spam_vocab]
+    assert store.table(:spam).key?("w:cheap")       # seen 3 times
+    assert !store.table(:spam).key?("w:pharmacy")   # seen once
+  end
+
   def test_probability_does_not_overflow
     assert_equal 1.0, Splam::TextModel.probability(5000)
     assert_in_delta 0.0, Splam::TextModel.probability(-5000), 1e-300
@@ -93,6 +108,18 @@ class TextModelRedisTest < Test::Unit::TestCase
 
   def model
     Splam::TextModel.new(Splam::TextModel::RedisStore.new(@redis, @prefix))
+  end
+
+  def test_loads_a_memory_store
+    mem = Splam::TextModel.new(Splam::TextModel::MemoryStore.new)
+    train_a_little(mem)
+    store = Splam::TextModel::RedisStore.new(@redis, @prefix)
+    store.load(mem.store, 3)
+    loaded = Splam::TextModel.new(store)
+    assert_equal mem.stats, loaded.stats
+    assert_in_delta mem.score("cheap viagra here")[:log_odds], loaded.score("cheap viagra here")[:log_odds], 1e-9
+    assert_equal false, loaded.train(1, "buy cheap viagra pills now", :spam) # labels came too
+    assert_equal store.keys.sort, store.keys.select { |k| @redis.exists(k) }.sort
   end
 
   def test_scores_with_one_lookup_per_label

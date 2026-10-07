@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.6.1 (2026-10-07)
+
+For building a text-model corpus offline and loading it in one go:
+- `TextModel::MemoryStore#table(label)`, `#labels`, and `#prune(min_count)`,
+  which drops features seen fewer than min_count times and keeps the totals
+  right (most features in a corpus are seen once).
+- `TextModel::RedisStore#load(memory_store, batch)` writes a MemoryStore's
+  counts, meta and labels under its prefix with HMSETs, replacing what was
+  there; `#keys` lists its keys (for deleting a store without KEYS).
+
 ## 0.6.0 (2026-10-07)
 
 The architecture for a trained scorer. So far scores don't change: every step
