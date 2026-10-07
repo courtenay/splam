@@ -155,6 +155,32 @@ class Splam::TextModel
       @meta
     end
 
+    # feature => count for a label (a copy)
+    def table(label)
+      @counts[label].dup
+    end
+
+    # doc id => label (a copy)
+    def labels
+      @labels.dup
+    end
+
+    # Drops features seen fewer than min_count times in all (spam + ham):
+    # most of a corpus is features seen once, which barely move a score.
+    # Returns how many were dropped.
+    def prune(min_count)
+      rare = (@counts[:spam].keys | @counts[:ham].keys).select { |k| @counts[:spam][k] + @counts[:ham][k] < min_count }
+      rare.each do |k|
+        LABELS.each do |label|
+          n = @counts[label].delete(k)
+          next unless n
+          @meta["#{label}_tokens"] -= n
+          @meta["#{label}_vocab"] -= 1
+        end
+      end
+      rare.size
+    end
+
     def label(doc_id)
       @labels[doc_id.to_s]
     end
@@ -209,6 +235,24 @@ class Splam::TextModel
 
     def meta
       @redis.hgetall("#{@prefix}:meta") # a handful of fields
+    end
+
+    # The keys this store uses, for deleting it (no KEYS needed)
+    def keys
+      %w(spam ham meta labels).map { |k| "#{@prefix}:#{k}" }
+    end
+
+    # Writes a MemoryStore's counts, meta and labels here, replacing what
+    # was there, in HMSETs of `batch` fields: for building a corpus offline
+    # and loading it under a new prefix.
+    def load(memory, batch = 1000)
+      @redis.del(*keys)
+      LABELS.each do |label|
+        memory.table(label).each_slice(batch) { |slice| @redis.hmset("#{@prefix}:#{label}", *slice.flatten) }
+      end
+      memory.labels.each_slice(batch) { |slice| @redis.hmset("#{@prefix}:labels", *slice.flatten) }
+      meta = memory.meta.reject { |_, v| v.zero? }
+      @redis.hmset("#{@prefix}:meta", *meta.to_a.flatten) unless meta.empty?
     end
 
     def label(doc_id)
